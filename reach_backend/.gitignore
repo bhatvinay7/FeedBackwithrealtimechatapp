@@ -1,0 +1,74 @@
+# Byte-compiled / optimized / DLL files
+*__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Virtual environment
+*venv/
+env/
+ENV/
+.venv/
+.python-version
+
+# VS Code settings
+.vscode/
+
+# macOS and Linux junk
+.DS_Store
+Thumbs.db
+
+# Python/Pip
+pip-log.txt
+pip-delete-this-directory.txt
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pytest
+.*pytest_cache/
+
+# Coverage reports
+*htmlcov/
+*.coverage
+*.coverage.*
+*.cache
+*nosetests.xml
+*coverage.xml
+*.cover
+*.py,cover
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Logs and local database
+*.log
+*.sqlite3
+*.db
+
+# Env files (critical)
+.env
+*.env.*
+
+# Docker
+*.pid
+*.seed
+docker-compose.override.yml
+
+# Compiled files and builds
+*build/
+*dist/
+*.egg-info/
+*.eggs/
+*.manifest
+
+# IDEs
+*.idea/
+*.iml
+
+# Gunicorn and Uvicorn
+*gunicorn.log

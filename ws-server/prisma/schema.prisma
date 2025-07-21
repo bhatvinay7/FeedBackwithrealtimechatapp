@@ -1,0 +1,155 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model GroupMessages {
+  id           Int            @id @default(autoincrement())
+  projectId    Int
+  fileLink     String?        @db.VarChar
+  senderId     Int
+  timeStamp    DateTime       @db.Timestamp(6)
+  users        users          @relation(fields: [senderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  UserMessages UserMessages[]
+
+  @@index([id], map: "ix_GroupMessages_id")
+}
+
+model IndividualMessage {
+  id                      Int                       @id @default(autoincrement())
+  projectId               Int
+  senderId                Int
+  message                 String                    @db.VarChar
+  Link                    String?                   @db.VarChar
+  timeStamp               DateTime                  @db.Timestamp(6)
+  users                   users                     @relation(fields: [senderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  IndividualMessageStatus IndividualMessageStatus[]
+
+  @@index([id], map: "ix_IndividualMessage_id")
+}
+
+model IndividualMessageStatus {
+  id                Int                @id @default(autoincrement())
+  messageId         Int?
+  receiverId        Int
+  isMessageSeen     Boolean?
+  isReceived        Boolean?
+  isDelevered       Boolean?
+  timeStamp         DateTime           @db.Timestamp(6)
+  IndividualMessage IndividualMessage? @relation(fields: [messageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users             users              @relation(fields: [receiverId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([id], map: "ix_IndividualMessageStatus_id")
+  @@index([messageId], map: "ix_IndividualMessageStatus_messageId")
+  @@index([receiverId], map: "ix_IndividualMessageStatus_receiverId")
+}
+
+model ProjectMembers {
+  id          Int   @id @default(autoincrement())
+  phoneNumber Int
+  projectId   Int
+  userId      Int
+  users       users @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([id], map: "ix_ProjectMembers_id")
+}
+
+model Projects {
+  id                 Int      @id @default(autoincrement())
+  projectName        String   @db.VarChar
+  managerName        String   @db.VarChar
+  managerId          Int
+  projectDiscription String   @db.VarChar
+  projectStatus      String   @db.VarChar
+  projectStartDate   DateTime @db.Timestamp(6)
+  projectEndDate     String   @db.VarChar
+  isFeedBackeOpen    Boolean?
+  isDeleted          Boolean?
+  users              users    @relation(fields: [managerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([id], map: "ix_Projects_id")
+}
+
+model UserFeedBack {
+  id        Int       @id @default(autoincrement())
+  projectId Int?
+  message   String    @db.VarChar
+  rating    Int
+  senderId  Int
+  timeStamp DateTime? @db.Timestamp(6)
+  users     users     @relation(fields: [senderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([id], map: "ix_UserFeedBack_id")
+  @@index([projectId], map: "ix_UserFeedBack_projectId")
+}
+
+model UserMessages {
+  id            Int           @id @default(autoincrement())
+  projectId     Int
+  messageId     Int
+  receiverId    Int
+  timeStamp     DateTime      @db.Timestamp(6)
+  isMessageSeen Boolean?
+  isReceived    Boolean?
+  isDelevered   Boolean?
+  GroupMessages GroupMessages @relation(fields: [messageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users         users         @relation(fields: [receiverId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([id], map: "ix_UserMessages_id")
+}
+
+model managerFeedBack {
+  id                    Int     @id @default(autoincrement())
+  projectId             Int
+  project_delivery      Int
+  receiverId            Int
+  work_accuracy         Int
+  team_collaboration    Int
+  areas_for_improvement String  @db.VarChar
+  discription           String  @db.VarChar
+  timeStamp             String? @db.VarChar
+  users                 users   @relation(fields: [receiverId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([id], map: "ix_managerFeedBack_id")
+}
+
+model roles {
+  id         Int          @id @default(autoincrement())
+  name       String       @db.VarChar
+  user_roles user_roles[]
+}
+
+model user_roles {
+  user_id     Int
+  role_id     Int
+  assigned_at DateTime @db.Timestamp(6)
+  roles       roles    @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users       users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([user_id, role_id])
+}
+
+model users {
+  id                      Int                       @id @default(autoincrement())
+  username                String                    @db.VarChar
+  mobileNumber            String?                   @db.VarChar
+  emailId                 String?                   @unique(map: "ix_users_emailId") @db.VarChar
+  picture                 String?                   @db.VarChar
+  password                String                    @db.VarChar
+  GroupMessages           GroupMessages[]
+  IndividualMessage       IndividualMessage[]
+  IndividualMessageStatus IndividualMessageStatus[]
+  ProjectMembers          ProjectMembers[]
+  Projects                Projects[]
+  UserFeedBack            UserFeedBack[]
+  UserMessages            UserMessages[]
+  managerFeedBack         managerFeedBack[]
+  user_roles              user_roles[]
+
+  @@index([id], map: "ix_users_id")
+}
