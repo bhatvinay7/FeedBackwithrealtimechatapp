@@ -51,6 +51,10 @@ services:
     container_name: reach_backend
     ports:
       - "8000:8000"
+    volumes:
+      - ./reach_backend:/app
+    environment:
+      - CHOKIDAR_USEPOLLING=true 
 
   ws_server:
     build:
