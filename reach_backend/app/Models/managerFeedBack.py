@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String,ForeignKey,Boolean
+from sqlalchemy import Column, Integer, String,ForeignKey,UniqueConstraint
 from sqlalchemy.orm import relationship
 from app.DB_Connection.db_connection import Base
 class ManagerFeedBack(Base):
@@ -15,6 +15,8 @@ class ManagerFeedBack(Base):
     projectFeedBack= relationship("Project", back_populates="ManagerFeedBack")
     user = relationship("User", back_populates="receiver")
    
-    
+    __table_args__ = (
+        UniqueConstraint("projectId", "receiverId", name="uix_project_manager_feedback"),
+    )
   
     
