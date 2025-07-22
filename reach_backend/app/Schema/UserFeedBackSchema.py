@@ -2,8 +2,10 @@ from pydantic import BaseModel,Field,model_validator
 from fastapi import Form
 
 class UserFeedBackSchema(BaseModel):
-    message:str=Field(...)
-    rating:int=Field(...)
+    message:str=Field(...,min_length=8, max_length=100)
+    rating:int=Field(...,max_digits=5)
+    projectId:int=Field(...)
+    senderId:int=Field(...)   
     
     @model_validator(mode='after')
     def validate(self):
@@ -20,10 +22,12 @@ class UserFeedBackSchema(BaseModel):
         cls,
         message: str = Form(...),
         rating: str = Form(...),
-        
+        projectId:int = Form(...),
+        senderId:int=Form(...)
     ):
         return cls(
             message=message,
-            message=rating,
-            
+            rating=rating,
+            projectId=projectId,
+            senderId=senderId
         )
