@@ -2,6 +2,7 @@ import express from "express";
 const app = express();
 import dotenv from "dotenv";
 dotenv.config();
+console.log("hii")
 import { WebSocketServer, WebSocket } from "ws";
 const wss = new WebSocketServer({ port: 8080 });
 
@@ -186,7 +187,7 @@ async function publishMessage(channel:string, message: string) {
 }
 
 
-app.listen(3006, () => {
-  console.log("WebSocket server is running on port 3006");
+app.listen(8080, () => {
+  console.log("WebSocket server is running on port 8080");
 }
 )
