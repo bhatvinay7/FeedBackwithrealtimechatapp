@@ -1,8 +1,7 @@
-from sqlalchemy import Column, Integer, String,ForeignKey,Boolean,DateTime
+from sqlalchemy import Column, Integer, String,ForeignKey,UniqueConstraint
 from sqlalchemy.orm import relationship
 from app.DB_Connection.db_connection import Base
-from app.Models import Project
-from app.Models import User
+
 from datetime import datetime,timezone
 import datetime
 class UserFeedBack(Base):
@@ -12,8 +11,11 @@ class UserFeedBack(Base):
     message=Column(String,nullable=False)
     rating=Column(Integer,nullable=False)
     senderId=Column(Integer, ForeignKey("users.id"),nullable=False)      
-    timeStamp= Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    timeStamp= Column(String,nullable=False)
     project = relationship("Project", back_populates="userFeedback")
     user= relationship("User", back_populates="FeedBack")
- 
+    __table_args__ = (
+        UniqueConstraint("projectId", "senderId", name="uix_project_employee_feedback"),
+    )
+  
     

@@ -12,7 +12,7 @@ class UserMessage(Base):
     projectId=Column(Integer,ForeignKey("Projects.id"),nullable=False)
     messageId=Column(Integer, ForeignKey("GroupMessages.id", ondelete="CASCADE"),nullable=False)
     receiverId=Column(Integer, ForeignKey("users.id"),nullable=False)
-    timeStamp=Column(DateTime, default=lambda: datetime.now(timezone.utc),nullable=False)    
+    timeStamp=Column(String,nullable=False)    
     isMessageSeen = Column(Boolean,default=False)  
     isReceived=Column(Boolean,default=False)      
     isDelevered=Column(Boolean,default=False)    

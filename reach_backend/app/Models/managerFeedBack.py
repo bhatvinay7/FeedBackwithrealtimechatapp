@@ -11,7 +11,7 @@ class ManagerFeedBack(Base):
     team_collaboration=Column(Integer,nullable=False)
     areas_for_improvement=Column(String,nullable=False)
     discription=Column(String,nullable=False)
-    timeStamp= Column(String)      
+    timeStamp= Column(String,nullable=False)      
     projectFeedBack= relationship("Project", back_populates="ManagerFeedBack")
     user = relationship("User", back_populates="receiver")
    

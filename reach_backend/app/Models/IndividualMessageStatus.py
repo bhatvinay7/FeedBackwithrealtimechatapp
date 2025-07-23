@@ -10,7 +10,7 @@ class IndividualMessageStatus(Base):
     isMessageSeen = Column(Boolean,default=False)  
     isReceived=Column(Boolean,default=False)      
     isDelevered=Column(Boolean,default=False)    
-    timeStamp= Column(DateTime, default=lambda: datetime.now(timezone.utc),nullable=False)
+    timeStamp= Column(String,nullable=False)
     user = relationship("User", back_populates="IndividualMessageStatus")
     IndividualMessage=relationship("IndividualMessage",back_populates="status",)
     

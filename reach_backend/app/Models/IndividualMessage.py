@@ -10,7 +10,7 @@ class IndividualMessage(Base):
     message= Column(String,nullable=True)
     Link=Column(String,nullable=True)       
     isDeleted=Column(Boolean,nullable=True,default=False) 
-    timeStamp= Column(DateTime, default=lambda: datetime.now(timezone.utc),nullable=False)
+    timeStamp= Column(String,nullable=False)
     project= relationship("Project", back_populates="IndividualMessage")
     user = relationship("User", back_populates="IndividualMessage")
     status=relationship("IndividualMessageStatus",back_populates="IndividualMessage")
