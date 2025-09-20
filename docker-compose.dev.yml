@@ -4,15 +4,13 @@ services:
   reach:
     build:
       context: ./reach
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     container_name: reach
     ports:
       - "3000:3000"
     volumes:
       - ./reach:/app
       - /app/node_modules
-    environment:
-      - CHOKIDAR_USEPOLLING=true
     command: npm run dev
     depends_on:
       - reach_backend
@@ -23,7 +21,7 @@ services:
   kafka_consumer1:
     build:
       context: ./kafka_consumer_1
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     container_name: kafka_consumer1
     ports:
       - "3005:3005"
@@ -31,11 +29,14 @@ services:
       - kafka1
       - kafka2
       - kafka3
-
+    volumes:
+      - ./kafka_consumer_1:/app
+      - /app/node_modules
+    
   kafka_consumer2:
     build:
       context: ./kafka_consumer_2
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     container_name: kafka_consumer2
     ports:
       - "3006:3006"
@@ -43,28 +44,32 @@ services:
       - kafka1
       - kafka2
       - kafka3
-
+    volumes:
+      - ./kafka_consumer_2:/app
+      - /app/node_modules
+    
   reach_backend:
     build:
       context: ./reach_backend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     container_name: reach_backend
     ports:
       - "8000:8000"
     volumes:
       - ./reach_backend:/app
-    environment:
-      - CHOKIDAR_USEPOLLING=true 
-
+    
   ws_server:
     build:
       context: ./ws-server
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     container_name: ws_server
     ports:
       - "8080:8080"
     depends_on:
       - reach_backend
+    volumes:
+      - ./ws-server:/app
+      - /app/node_modules
 
   zookeeper:
     image: bitnami/zookeeper:3.8

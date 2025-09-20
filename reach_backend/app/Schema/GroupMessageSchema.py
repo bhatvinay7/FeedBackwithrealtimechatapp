@@ -1,29 +1,32 @@
-from pydantic import BaseModel, Field, model_validator,validators
+from pydantic import BaseModel, Field, model_validator
 from fastapi import Form
 
 
 class GroupMessage(BaseModel):
     message:str =Field(...)
-    projectId:str=Field(...)
-    
+    projectId:int=Field(...)
+    senderId:int = Form(...)
     
     # Example of a Pydantic field validator
-    @classmethod
-    def validate_message(cls, value):
-        if value.message=="":
+    @model_validator(mode="after")
+    def validate_message(self):
+        if self.message=="":
            raise ValueError("Please provide message")
-        elif value.projectId=="":
+        elif self.projectId=="" or self.senderId=="":
              raise ValueError("message not sent! try again")
-        return value
+
+    
     
     
     @classmethod
     def as_form(
         cls,
         message: str = Form(...),
-        projectId:str=Form(...),
+        projectId:int=Form(...),
+        senderId:int = Form(...)
     ):
         return cls(
             message=message,
             projectId=projectId,
+            senderId=senderId
         )    

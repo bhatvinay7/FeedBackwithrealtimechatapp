@@ -1,13 +1,11 @@
-from jose import jwt
+import jwt
+from app.core.config import settings
 from datetime import datetime, timedelta
-
-SECRET_KEY = "your-secret"
+from fastapi import HTTPException,Request
 ALGORITHM = "HS256"
 
 from datetime import datetime, timedelta
-from jose import jwt
 
-SECRET_KEY = "your-secret-key"
 ALGORITHM = "HS256"
 
 def create_jwt_token(data: dict, time: int):
@@ -19,23 +17,16 @@ def create_jwt_token(data: dict, time: int):
     expire = datetime.now() + expires_delta
     to_encode.update({"exp": expire})
 
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return jwt.encode(to_encode, settings.secret_key, algorithm=ALGORITHM)
 
-# from jose import JWTError, jwt
+def decode_jwt_token(request:Request):
+    try:
+        token= request.headers["Authorization"].split(" ")[1]
+        print(token)
+        payload = jwt.decode(token, settings.secret_key, algorithms=[ALGORITHM])
+        return payload
+    except jwt.PyJWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
 
-# # Example secret key (in production, store this securely!)
-# SECRET_KEY = "your_secret_key"
-# ALGORITHM = "HS256"
 
-# # Data to encode into the token
-# data = {"sub": "user123"}
-
-# # Create a JWT
-# token = jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)
-
-# # Decode a JWT
-# try:
-#     payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-#     username = payload.get("sub")
-# except JWTError:
-#     raise HTTPException(status_code=401, detail="Invalid token")

@@ -2,7 +2,7 @@ import express from "express";
 const app = express();
 import dotenv from "dotenv";
 dotenv.config();
-console.log("hii");
+
 import { WebSocketServer, WebSocket } from "ws";
 const wss = new WebSocketServer({ port: 8080 });
 
@@ -55,43 +55,53 @@ const userRoomMap = new Map<WebSocket, Map<string, number>>();
 const userSocketMap = new Map<number, WebSocket>();
 const rooms = new Map<string, Set<WebSocket>>();
 interface Message {
-  userId?: number;
-  roomId?: number;
-  message?: string;
-  subscribe?: boolean | null;
+  userId?: number
+  roomId?: number
+  message?: string|null
+  timeStamp?:string
   type: string;
   join?: boolean | null;
-  priv_roomId_priv_type?: string | null;
 }
 
 wss.on("connection", (ws) => {
-  console.log("user");
-
+ 
   ws.on("message", async (data: string) => {
+    console.log(data.toString())
     const message: Message = JSON.parse(data.toString());
-    if (!userSocketMap.get(message.userId!)) {
+      if(!userSocketMap.get(message.userId!))
       userSocketMap.set(message.userId!, ws);
-    }
-    if (message.roomId && message.join!) {
-      const previousRoomId = userRoomMap
+      if (message.roomId && message.join!) {
+        const previousRoomId = userRoomMap
         .get(ws)
         ?.keys()
-        .next()
-        .value!.split("-")?.[0];
+        .next()?.value!.split("-")?.[0];
+        
+      
 
-      //  Remove the socket from the previous room (if any)
-      if (previousRoomId! != message.roomId.toString()!) {
-        rooms.get(previousRoomId!)!.delete(ws);
-      }
-
-      if (!rooms.has(`${message.roomId}-${message.type}`)) {
-        rooms.set(`${message.roomId}-${message.type}`, new Set());
-        await subscribeToRoomChannel(`${message.roomId}-${message.type}`); // Subscribe to this Redis room/channel only once
-      }
-
-      rooms.get(`${message.roomId}-${message.type}`)!.add(ws);
-
-      if (message.message) {
+        if (previousRoomId! != message.roomId.toString()) {
+         
+          rooms.get(userRoomMap
+        .get(ws)
+        ?.keys()
+        .next()?.value!)?.delete(ws);
+          const newUser=new Map()
+          newUser.set(`${message.roomId}-${message.type}`,message.userId)
+          userRoomMap.set(ws,newUser)
+         
+          
+        }
+        
+        if (!rooms.has(`${message.roomId}-${message.type}`)) {
+          rooms.set(`${message.roomId}-${message.type}`, new Set());
+          // console.log(rooms)
+          await subscribeToRoomChannel(`${message.roomId}-${message.type}`); // Subscribe to this Redis room/channel only once
+        }
+        // console.log(rooms.get(`${message.roomId}-${message.type}`))
+        rooms.get(`${message.roomId}-${message.type}`)?.add(ws);
+        
+        console.log(JSON.stringify(rooms.size) +" "+"open on message")
+       
+        if (message.message) {
         // const buffer: Buffer = Buffer.from(message.message);
         await publishMessage(
           `${message.roomId}-${message.type}`,
@@ -114,14 +124,18 @@ wss.on("connection", (ws) => {
   });
 
   ws.on("close", async () => {
-    const clients = rooms.get(userRoomMap.get(ws)!.keys().next().value!);
+
+    const clients = rooms.get(userRoomMap.get(ws)?.keys().next().value!);
     if (clients) {
       clients.delete(ws);
       if (clients.size === 0) {
-        rooms.delete(userRoomMap.get(ws)!.keys().next().value!);
-        subscriber.unsubscribe(userRoomMap.get(ws)!.keys().next().value!);
+        console.log('deleted room'+userRoomMap.get(ws)?.keys().next().value!)
+        rooms.delete(userRoomMap.get(ws)?.keys().next().value!);
+        subscriber.unsubscribe(userRoomMap.get(ws)?.keys().next()?.value!);
       }
+      console.log("unsubcribed from " + userRoomMap.get(ws)?.keys().next().value!)
       userRoomMap.delete(ws);
+      console.log("confirmed")
     }
   });
 
@@ -135,7 +149,7 @@ async function subscribeToRoomChannel(roomId: string) {
     await subscriber.subscribe(
       roomId.toString(),
       async (messageStr: string, channel: string) => {
-        const clients = rooms.get(channel);
+        const clients = rooms?.get(channel);
         //   const user=clients?.values().next().value
         //   if(user){
 

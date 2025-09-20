@@ -31,6 +31,6 @@ try{
 catch(error:any){
     console.log(error.message)
 }
-app.listen(3005,()=>{
+app.listen(3005,"0.0.0.0",()=>{
     console.log("kafka server1 is running on port 3005")
 })

@@ -11,7 +11,7 @@ class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String,nullable=False)
-    mobileNumber=Column(String,nullable=True)
+    mobilenumber=Column(String,nullable=True)
     emailId=Column(String, unique=True, index=True)
     picture=Column(String, nullable=True)
     password=Column(String,nullable=False)
@@ -24,6 +24,6 @@ class User(Base):
     message=relationship("UserMessage",back_populates="user")
     IndividualMessage=relationship("IndividualMessage",back_populates="user")
     IndividualMessageStatus=relationship("IndividualMessageStatus",back_populates="user") 
-    
+    members=relationship("Member", back_populates="user")
                                                         
                                                         

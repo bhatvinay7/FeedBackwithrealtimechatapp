@@ -13,7 +13,8 @@ model GroupMessages {
   projectId    Int
   fileLink     String?        @db.VarChar
   senderId     Int
-  timeStamp    DateTime       @db.Timestamp(6)
+  timeStamp    String         @db.VarChar
+  Projects     Projects       @relation(fields: [projectId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   users        users          @relation(fields: [senderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   UserMessages UserMessages[]
 
@@ -23,26 +24,31 @@ model GroupMessages {
 model IndividualMessage {
   id                      Int                       @id @default(autoincrement())
   projectId               Int
+  channelId               String                    @db.VarChar
   senderId                Int
-  message                 String                    @db.VarChar
+  message                 String?                   @db.VarChar
   Link                    String?                   @db.VarChar
-  timeStamp               DateTime                  @db.Timestamp(6)
+  isDeleted               Boolean?
+  timeStamp               String                    @db.VarChar
+  Channels                Channels                  @relation(fields: [channelId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  Projects                Projects                  @relation(fields: [projectId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   users                   users                     @relation(fields: [senderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   IndividualMessageStatus IndividualMessageStatus[]
 
   @@index([id], map: "ix_IndividualMessage_id")
+  @@index([channelId], map: "ix_IndividualMessage_channelId")
 }
 
 model IndividualMessageStatus {
-  id                Int                @id @default(autoincrement())
-  messageId         Int?
+  id                Int               @id @default(autoincrement())
+  messageId         Int
   receiverId        Int
   isMessageSeen     Boolean?
   isReceived        Boolean?
   isDelevered       Boolean?
-  timeStamp         DateTime           @db.Timestamp(6)
-  IndividualMessage IndividualMessage? @relation(fields: [messageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users             users              @relation(fields: [receiverId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  timeStamp         String            @db.VarChar
+  IndividualMessage IndividualMessage @relation(fields: [messageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users             users             @relation(fields: [receiverId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([id], map: "ix_IndividualMessageStatus_id")
   @@index([messageId], map: "ix_IndividualMessageStatus_messageId")
@@ -50,27 +56,34 @@ model IndividualMessageStatus {
 }
 
 model ProjectMembers {
-  id          Int   @id @default(autoincrement())
-  phoneNumber Int
+  id          Int      @id @default(autoincrement())
+  phonenumber String   @db.VarChar
   projectId   Int
   userId      Int
-  users       users @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  Projects    Projects @relation(fields: [projectId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users       users    @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([id], map: "ix_ProjectMembers_id")
 }
 
 model Projects {
-  id                 Int      @id @default(autoincrement())
-  projectName        String   @db.VarChar
-  managerName        String   @db.VarChar
+  id                 Int                 @id @default(autoincrement())
+  projectName        String              @db.VarChar
   managerId          Int
-  projectDiscription String   @db.VarChar
-  projectStatus      String   @db.VarChar
-  projectStartDate   DateTime @db.Timestamp(6)
-  projectEndDate     String   @db.VarChar
+  projectDiscription String              @db.VarChar
+  projectStatus      statusenum
+  projectStartDate   String              @db.VarChar
+  projectEndDate     String              @db.VarChar
   isFeedBackeOpen    Boolean?
   isDeleted          Boolean?
-  users              users    @relation(fields: [managerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  GroupMessages      GroupMessages[]
+  IndividualMessage  IndividualMessage[]
+  ProjectMembers     ProjectMembers[]
+  users              users               @relation(fields: [managerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  UserFeedBack       UserFeedBack[]
+  UserMessages       UserMessages[]
+  managerFeedBack    managerFeedBack[]
+  tiggerfeedback     tiggerfeedback[]
 
   @@index([id], map: "ix_Projects_id")
 }
@@ -81,9 +94,11 @@ model UserFeedBack {
   message   String    @db.VarChar
   rating    Int
   senderId  Int
-  timeStamp DateTime? @db.Timestamp(6)
+  timeStamp String    @db.VarChar
+  Projects  Projects? @relation(fields: [projectId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   users     users     @relation(fields: [senderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
+  @@unique([projectId, senderId], map: "uix_project_employee_feedback")
   @@index([id], map: "ix_UserFeedBack_id")
   @@index([projectId], map: "ix_UserFeedBack_projectId")
 }
@@ -93,28 +108,31 @@ model UserMessages {
   projectId     Int
   messageId     Int
   receiverId    Int
-  timeStamp     DateTime      @db.Timestamp(6)
+  timeStamp     String        @db.VarChar
   isMessageSeen Boolean?
   isReceived    Boolean?
   isDelevered   Boolean?
   GroupMessages GroupMessages @relation(fields: [messageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  Projects      Projects      @relation(fields: [projectId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   users         users         @relation(fields: [receiverId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([id], map: "ix_UserMessages_id")
 }
 
 model managerFeedBack {
-  id                    Int     @id @default(autoincrement())
+  id                    Int      @id @default(autoincrement())
   projectId             Int
   project_delivery      Int
   receiverId            Int
   work_accuracy         Int
   team_collaboration    Int
-  areas_for_improvement String  @db.VarChar
-  discription           String  @db.VarChar
-  timeStamp             String? @db.VarChar
-  users                 users   @relation(fields: [receiverId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  areas_for_improvement String   @db.VarChar
+  description           String   @db.VarChar
+  timeStamp             String   @db.VarChar
+  Projects              Projects @relation(fields: [projectId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users                 users    @relation(fields: [receiverId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
+  @@unique([projectId, receiverId], map: "uix_project_manager_feedback")
   @@index([id], map: "ix_managerFeedBack_id")
 }
 
@@ -127,9 +145,9 @@ model roles {
 model user_roles {
   user_id     Int
   role_id     Int
-  assigned_at DateTime @db.Timestamp(6)
-  roles       roles    @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users       users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  assigned_at String @db.VarChar
+  roles       roles  @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users       users  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([user_id, role_id])
 }
@@ -137,13 +155,14 @@ model user_roles {
 model users {
   id                      Int                       @id @default(autoincrement())
   username                String                    @db.VarChar
-  mobileNumber            String?                   @db.VarChar
+  mobilenumber            String?                   @db.VarChar
   emailId                 String?                   @unique(map: "ix_users_emailId") @db.VarChar
   picture                 String?                   @db.VarChar
   password                String                    @db.VarChar
   GroupMessages           GroupMessages[]
   IndividualMessage       IndividualMessage[]
   IndividualMessageStatus IndividualMessageStatus[]
+  Members                 Members[]
   ProjectMembers          ProjectMembers[]
   Projects                Projects[]
   UserFeedBack            UserFeedBack[]
@@ -152,4 +171,43 @@ model users {
   user_roles              user_roles[]
 
   @@index([id], map: "ix_users_id")
+}
+
+model Channels {
+  id                String              @id @db.VarChar
+  IndividualMessage IndividualMessage[]
+  Members           Members[]
+
+  @@index([id], map: "ix_Channels_id")
+}
+
+model Members {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  channelId String   @db.VarChar
+  Channels  Channels @relation(fields: [channelId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users     users    @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([channelId], map: "ix_Members_channelId")
+  @@index([id], map: "ix_Members_id")
+}
+
+model alembic_version {
+  version_num String @id(map: "alembic_version_pkc") @db.VarChar(32)
+}
+
+model tiggerfeedback {
+  id             Int      @id @default(autoincrement())
+  isFeedBackOpen Boolean?
+  projectId      Int
+  Projects       Projects @relation(fields: [projectId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([id], map: "ix_tiggerfeedback_id")
+}
+
+enum statusenum {
+  NOT_STARTED
+  PENDING
+  IN_PROGRESS
+  COMPLETED
 }

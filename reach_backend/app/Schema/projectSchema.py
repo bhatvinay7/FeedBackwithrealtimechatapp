@@ -1,17 +1,18 @@
+
+from typing import Any
 from pydantic import BaseModel, Field, model_validator
 from fastapi import Form
 
 class ProjectForm(BaseModel):
-    projectName: str = Field(..., min_length=3, max_length=50)
-    managerName: str = Field(..., min_length=3, max_length=50)
-    projectDiscription: str = Field(..., min_length=10, max_length=500)
+    projectName: str = Field(..., min_length=3)
+    projectDiscription: str = Field(..., min_length=10)
     projectStatus: str = Field(...)
     projectStartDate: str = Field(...)
     projectEndDate: str = Field(...)
 
     @model_validator(mode='after')
     def validate_project(self) -> 'ProjectForm':
-        if self.projectStatus not in ['Not Started', 'In Progress', 'Completed']:
+        if self.projectStatus not in ["PENDING", "IN_PROGRESS", "COMPLETED",'NOT_STARTED']:
             raise ValueError('Project status must be one of: Not Started, In Progress, Completed.')
         if not self.projectStartDate:
             raise ValueError('Please provide the project start date.')
@@ -25,7 +26,6 @@ class ProjectForm(BaseModel):
     def as_form(
         cls,
         projectName: str = Form(...),
-        managerName: str = Form(...),
         projectDiscription: str = Form(...),
         projectStatus: str = Form(...),
         projectStartDate: str = Form(...),
@@ -33,9 +33,12 @@ class ProjectForm(BaseModel):
     ):
         return cls(
             projectName=projectName,
-            managerName=managerName,
             projectDiscription=projectDiscription,
             projectStatus=projectStatus,
             projectStartDate=projectStartDate,
             projectEndDate=projectEndDate
         )
+
+
+
+

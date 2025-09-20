@@ -11,3 +11,6 @@ from app.Models.Roles import Role
 from app.Models.IndividualMessage import IndividualMessage
 from app.Models.managerFeedBack import ManagerFeedBack
 from app.Models.IndividualMessageStatus import IndividualMessageStatus
+from app.Models.Member import Member
+from app.Models.Channels import Channel
+from app.Models.TiggerProjectFeedBack import TiggerFeedBack

@@ -1,0 +1,115 @@
+services:
+  reach:
+    image: ${DOCKER_USERNAME}/reach:latest
+    container_name: reach
+    ports:
+      - "3000:3000"
+    env_file:
+      - env.reach
+                
+    depends_on:
+      - reach_backend
+      - kafka1
+      - kafka2
+      - kafka3
+
+  kafka_consumer1:
+    image: ${DOCKER_USERNAME}/kafka_consumer_1
+    container_name: kafka_consumer1
+    env_file:
+      - env.consumer
+    ports:
+      - "3005:3005"
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+    
+
+  kafka_consumer2:
+    image: ${DOCKER_USERNAME}/kafka_consumer_2
+    container_name: kafka_consumer2
+    ports:
+      - "3006:3006"
+    env_file:
+      - env.consumer
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+
+  reach_backend:
+    image: ${DOCKER_USERNAME}/reach_backend
+    container_name: reach_backend
+    env_file:
+      - env.reach_backend
+    ports:
+      - "8000:8000"
+  ws_server:
+    image: ${DOCKER_USERNAME}/ws_server
+    container_name: ws_server
+    env_file:
+      - env.ws-server
+    ports:
+      - "8080:8080"
+    depends_on:
+      - reach_backend
+
+  zookeeper:
+    image: bitnami/zookeeper:3.8
+    container_name: zookeeper
+    env_file:
+      - env.kafka
+    ports:
+      - "2181:2181"
+    
+  kafka1:
+    image: bitnami/kafka:3.4
+    container_name: kafka1
+    ports:
+      - "9092:9092"
+    env_file:
+      - env.kafka   
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka1:9092
+    volumes:
+      - kafka1_data:/bitnami/kafka
+    depends_on:
+      - reach_backend
+
+  kafka2:
+    image: bitnami/kafka:3.4
+    container_name: kafka2
+    ports:
+      - "9093:9093"
+    environment:
+      - KAFKA_BROKER_ID=2
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka2:9093
+    env_file:
+      - env.kafka    
+    volumes:
+      - kafka2_data:/bitnami/kafka
+    depends_on:
+      - reach_backend
+
+  kafka3:
+    image: bitnami/kafka:3.4
+    container_name: kafka3
+    ports:
+      - "9094:9094"
+    env_file:
+      - env.kafka    
+    environment:
+      - KAFKA_BROKER_ID=3
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka3:9094
+    volumes:
+      - kafka3_data:/bitnami/kafka
+    depends_on:
+      - reach_backend
+
+volumes:
+  zookeeper_data:
+  kafka1_data:
+  kafka2_data:
+  kafka3_data:

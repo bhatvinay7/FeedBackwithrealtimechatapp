@@ -5,6 +5,10 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_ID:str
     GOOGLE_CLIENT_SECRET:str
     secret_key:str
+    Redis_URL:str
+    password:str
+    password:str
+    port:str
     class Config:
         env_file = ".env"
 
