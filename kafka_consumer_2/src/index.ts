@@ -178,7 +178,7 @@ async function startKafkaConsumer() {
                     projectId: parseInt(userMessage.roomId),
                     messageId: newMessage.id,
                     receiverId: member.id,
-                    isDelevered: true, // Note: fixed typo from "isDelevered"
+                    isDelevered: true,
                     timeStamp: newMessage.timeStamp
                   }
                 });
@@ -192,7 +192,6 @@ async function startKafkaConsumer() {
 
         } catch (messageError) {
           console.error('Error processing message:', messageError);
-          // Don't throw here to avoid stopping the consumer
         }
       },
     });

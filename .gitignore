@@ -113,7 +113,6 @@ docker-compose.override.yml
 *.egg-info/
 *.eggs/
 *.manifest
-
 # IDEs
 *.idea/
 *.iml
