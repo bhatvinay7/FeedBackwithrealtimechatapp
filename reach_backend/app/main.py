@@ -1,6 +1,4 @@
 from fastapi import FastAPI
-
-# from app.DB_Connection import get_db
 from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.CRUD.user import router as user_router
@@ -24,7 +22,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[f"${settings.NEXT_PUBLIC_FRONTEND_API_URL}"],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PATCH", "DELETE"],
     allow_headers=["Authorization", "Content-Type"],

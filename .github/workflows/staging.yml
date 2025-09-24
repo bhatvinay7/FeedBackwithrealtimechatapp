@@ -77,6 +77,8 @@ jobs:
           build-args: |
                 NEXT_PUBLIC_BACKEND_API_URL=${{secrets.NEXT_PUBLIC_BACKEND_API_URL}}
                 NEXT_PUBLIC_FRONTEND_API_URL=${{secrets.NEXT_PUBLIC_FRONTEND_API_URL}}
+                NEXT_PUBLIC_WS_SERVER=${{secrets.NEXT_PUBLIC_WS_SERVER}}
+                
                 DATABASE_URL=${{secrets.DATABASE_URL}}
           push: true
           tags: |
@@ -154,15 +156,17 @@ jobs:
           --dry-run=client -o yaml
 
           kubectl create secret generic frontend-secret \
-          --from-literal=NEXT_PUBLIC_BACKEND_API_URL=${{DOCKER_USERNAME}} \
-          --from-literal=secret_key=${{DOCKER_PASSWORD}} \
-          --from-literal=NEXT_PUBLIC_FRONTEND_API_URL=${{DOCKER_PASSWORD}} \
+          --from-literal=NEXT_PUBLIC_BACKEND_API_URL=${{secrets.NEXT_PUBLIC_BACKEND_API_URL}} \
+          --from-literal=secret_key=${{secrets.SECRET_KEY}} \
+          --from-literal=NEXT_PUBLIC_FRONTEND_API_URL=${{secrets.NEXT_PUBLIC_FRONTEND_API_URL}} \
+          --from-literal=NEXT_PUBLIC_WS_SERVER=${{secrets.NEXT_PUBLIC_WS_SERVER}} \
           --namespace=default \
           --dry-run=client -o yaml
 
           kubectl create secret generic backend-secret \
           --from-literal=GOOGLE_CLIENT_ID=${{secrets.GOOGLE_CLIENT_ID}} \
           --from-literal=GOOGLE_CLIENT_SECRET=${{secrets.GOOGLE_CLIENT_SECRET}} \
+          --from-literal=NEXT_PUBLIC_FRONTEND_API_URL=${{secrets.NEXT_PUBLIC_FRONTEND_API_URL}} \
           --from-literal=secret_key=${{secrets.SECRET_KEY}} \
           --from-literal=DATABASE_URL=${{secrets.DATABASE_URL}} \
           --from-literal=Redis_URL=${{secrets.REDIS_URL}} \

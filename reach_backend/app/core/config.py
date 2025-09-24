@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     password:str
     password:str
     port:str
+    NEXT_PUBLIC_FRONTEND_API_URL:str
     class Config:
         env_file = ".env"
 
