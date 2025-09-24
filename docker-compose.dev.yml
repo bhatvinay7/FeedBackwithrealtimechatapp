@@ -3,13 +3,13 @@ version: "3.8"
 services:
   reach:
     build:
-      context: ./reach
+      context: ./reach-frontend
       dockerfile: Dockerfile.dev
-    container_name: reach
+    container_name: reach_frontend
     ports:
       - "3000:3000"
     volumes:
-      - ./reach:/app
+      - ./reach-frontend:/app
       - /app/node_modules
     command: npm run dev
     depends_on:
@@ -50,13 +50,13 @@ services:
     
   reach_backend:
     build:
-      context: ./reach_backend
+      context: ./reach-backend
       dockerfile: Dockerfile.dev
     container_name: reach_backend
     ports:
       - "8000:8000"
     volumes:
-      - ./reach_backend:/app
+      - ./reach-backend:/app
     
   ws_server:
     build:

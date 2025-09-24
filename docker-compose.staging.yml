@@ -39,10 +39,10 @@ services:
       - kafka3
 
   reach_backend:
-    image: ${DOCKER_USERNAME}/reach_backend
+    image: ${DOCKER_USERNAME}/reach-backend
     container_name: reach_backend
     env_file:
-      - env.reach_backend
+      - env.reach-backend
     ports:
       - "8000:8000"
   ws_server:

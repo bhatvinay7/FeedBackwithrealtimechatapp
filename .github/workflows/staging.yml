@@ -62,18 +62,18 @@ jobs:
       - name: Build & push reach_backend
         uses: docker/build-push-action@v5
         with:
-          context: ./reach_backend
-          file: ./reach_backend/Dockerfile.staging
+          context: ./reach-backend
+          file: ./reach-backend/Dockerfile.staging
           push: true
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/reach_backend:${{ env.COMMIT_SHA }}
-            ${{ secrets.DOCKER_USERNAME }}/reach_backend:latest    
+            ${{ secrets.DOCKER_USERNAME }}/reach-backend:${{ env.COMMIT_SHA }}
+            ${{ secrets.DOCKER_USERNAME }}/reach-backend:latest    
       
       - name: Build & push reach
         uses: docker/build-push-action@v5
         with:
-          context: ./reach
-          file: ./reach/Dockerfile.staging
+          context: ./reach-frontend
+          file: ./reach-frontend/Dockerfile.staging
           build-args: |
                 NEXT_PUBLIC_BACKEND_API_URL=${{secrets.NEXT_PUBLIC_BACKEND_API_URL}}
                 NEXT_PUBLIC_FRONTEND_API_URL=${{secrets.NEXT_PUBLIC_FRONTEND_API_URL}}
@@ -82,8 +82,8 @@ jobs:
                 DATABASE_URL=${{secrets.DATABASE_URL}}
           push: true
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/reach:${{ env.COMMIT_SHA }}
-            ${{ secrets.DOCKER_USERNAME }}/reach:latest    
+            ${{ secrets.DOCKER_USERNAME }}/reach-frontend:${{ env.COMMIT_SHA }}
+            ${{ secrets.DOCKER_USERNAME }}/reach-frontend:latest    
 
       
   Deploy:  
