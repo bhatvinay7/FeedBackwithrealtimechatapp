@@ -8,7 +8,7 @@
 
 # Virtual environment
 *venv/
-env/
+.env/
 ENV/
 .venv/
 .python-version

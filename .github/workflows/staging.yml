@@ -28,6 +28,8 @@ jobs:
         with:
           context: ./kafka_consumer_1
           file: ./kafka_consumer_1/Dockerfile.staging
+          build-args: |
+                DATABASE_URL=${{secrets.DATABASE_URL}}
           push: true
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/kafka_consumer1:${{ env.COMMIT_SHA }}
@@ -37,7 +39,9 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./kafka_consumer_2
-          file: ./kafka_consumer_2/Dockerfile.staging 
+          file: ./kafka_consumer_2/Dockerfile.staging
+          build-args: |
+                DATABASE_URL=${{secrets.DATABASE_URL}} 
           push: true
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/kafka_consumer2:${{ env.COMMIT_SHA }}
@@ -48,6 +52,8 @@ jobs:
         with:
           context: ./ws-server
           file: ./ws-server/Dockerfile.staging
+          build-args: |
+                DATABASE_URL=${{secrets.DATABASE_URL}}
           push: true
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/reach-ws-server:${{ env.COMMIT_SHA }}
@@ -68,6 +74,10 @@ jobs:
         with:
           context: ./reach
           file: ./reach/Dockerfile.staging
+          build-args: |
+                NEXT_PUBLIC_BACKEND_API_URL=${{secrets.NEXT_PUBLIC_BACKEND_API_URL}}
+                NEXT_PUBLIC_FRONTEND_API_URL=${{secrets.NEXT_PUBLIC_FRONTEND_API_URL}}
+                DATABASE_URL=${{secrets.DATABASE_URL}}
           push: true
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/reach:${{ env.COMMIT_SHA }}
