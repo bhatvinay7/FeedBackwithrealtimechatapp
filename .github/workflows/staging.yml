@@ -150,8 +150,8 @@ jobs:
           cd ~/gitops/Helm/chart.prod
           kubeseal --fetch-cert --controller-name sealed-secrets-controller --controller-namespace sealed-secrets > pub-sealed-secrets.pem
           kubectl create secret docker-registry docker-secret \
-          --docker-username=${{DOCKER_USERNAME}} \
-          --docker-password=${{DOCKER_PASSWORD}} \
+          --docker-username=${{secrets.DOCKER_USERNAME}} \
+          --docker-password=${{secrets.DOCKER_PASSWORD}} \
           --namespace=default \
           --dry-run=client -o yaml
 
