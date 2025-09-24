@@ -3,10 +3,10 @@ name:
 on:
   push:
     branches:
-      - staging 
+      - dev
   pull_request:
     branches:
-      - staging   
+      - dev   
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -30,8 +30,8 @@ jobs:
           file: ./kafka_consumer_1/Dockerfile.staging
           push: true
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/kafka_consumer_1:${{ env.COMMIT_SHA }}
-            ${{ secrets.DOCKER_USERNAME }}/kafka_consumer_1:latest
+            ${{ secrets.DOCKER_USERNAME }}/kafka_consumer1:${{ env.COMMIT_SHA }}
+            ${{ secrets.DOCKER_USERNAME }}/kafka_consumer1:latest
 
       - name: Build & Push kafka_consumer_2
         uses: docker/build-push-action@v5
@@ -40,8 +40,8 @@ jobs:
           file: ./kafka_consumer_2/Dockerfile.staging 
           push: true
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/kafka_consumer_2:${{ env.COMMIT_SHA }}
-            ${{ secrets.DOCKER_USERNAME }}/kafka_consumer_2:latest
+            ${{ secrets.DOCKER_USERNAME }}/kafka_consumer2:${{ env.COMMIT_SHA }}
+            ${{ secrets.DOCKER_USERNAME }}/kafka_consumer2:latest
 
       - name: Build & Push ws-server
         uses: docker/build-push-action@v5
@@ -50,8 +50,8 @@ jobs:
           file: ./ws-server/Dockerfile.staging
           push: true
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/ws-server:${{ env.COMMIT_SHA }}
-            ${{ secrets.DOCKER_USERNAME }}/ws-server:latest    
+            ${{ secrets.DOCKER_USERNAME }}/reach-ws-server:${{ env.COMMIT_SHA }}
+            ${{ secrets.DOCKER_USERNAME }}/reach-ws-server:latest    
 
       - name: Build & push reach_backend
         uses: docker/build-push-action@v5
@@ -81,24 +81,136 @@ jobs:
         COMMIT_SHA: ${{ github.sha }}
 
     steps:
-      - name: deploy to VM
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.VM_HOST }}
-          username: ${{ secrets.VM_USER }}
-          key: ${{ secrets.VM_SSH_KEY }}
-          script: |
-            sudo systemctl start docker
-            sudo systemctl start nginx  
-            sudo apt install curl -y
-            sudo apt install -y python3-pip
-            sudo apt install curl -y
-            curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-            sudo apt install -y nodejs       
-            sudo docker network create kafka-network || true
-            sudo docker stop $(sudo docker ps -q) && sudo docker rm $(sudo docker ps -aq) && sudo docker rmi $(docker images -q)
-            sudo docker system prune -af
-            
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install kubectl
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+          kubectl version --client
+
+      - name: Install kubeseal
+        run: |
+          VERSION=$(curl -s https://api.github.com/repos/bitnami-labs/sealed-secrets/releases/latest | grep tag_name | cut -d '"' -f 4)
+          wget https://github.com/bitnami-labs/sealed-secrets/releases/download/${VERSION}/kubeseal-${VERSION}-linux-amd64.tar.gz
+          tar -xvzf kubeseal-${VERSION}-linux-amd64.tar.gz kubeseal
+          sudo install -m 755 kubeseal /usr/local/bin/kubeseal
+          kubeseal --version
+
+      - name: Checkout GitOps repo
+        run: |
+          mkdir -p ~/gitops
+          cd ~/gitops
+          export GITOPS_BRANCH=${{secrets.GITOPS_BRANCH}}
+          export GITOPS_REPO=${{secrets.GITOPS_REPO}}
+
+          git clone --branch $GITOPS_BRANCH $GITOPS_REPO
+          git config user.name "ci-bot"
+          git config user.email "ci-bot@example.com"
+
+      - name: Update values.yml and seal secret
+        run: |
+          apt-get update && apt-get install -y git
+          cd ~/gitops/Helm/chart.prod
+          export GITOPS_BRANCH=${{secrets.GITOPS_BRANCH}}
+          export GITOPS_REPO=${{secrets.GITOPS_REPO}}
+
+    
+          yq -i ".services.frontend.image = \"reach-frontend:${GITHUB_SHA}\"" values.prod.yml
+
+          yq -i ".services.backend.image = \"reach-backend:${GITHUB_SHA}\"" values.prod.yml
+
+          yq -i ".services.ws-server.image = \"reach-ws-server:${GITHUB_SHA}\"" values.prod.yml
+
+          yq -i ".services.kafka_consumer1.image = \"kafka-consumer1:${GITHUB_SHA}\"" values.prod.yml
+
+          yq -i ".services.kafka_consumer2.image = \"kafka-consumer2:${GITHUB_SHA}\"" values.prod.yml
+          
+      - name: Setup Kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBECONFIG_CONTENT }}" > $HOME/.kube/config
+          kubectl get nodes
+
+      - name: Create and Seal the Secret
+        run: |
+          cd ~/gitops/Helm/chart.prod
+          kubeseal --fetch-cert --controller-name sealed-secrets-controller --controller-namespace sealed-secrets > pub-sealed-secrets.pem
+          kubectl create secret docker-registry docker-secret \
+          --docker-username=${{DOCKER_USERNAME}} \
+          --docker-password=${{DOCKER_PASSWORD}} \
+          --namespace=default \
+          --dry-run=client -o yaml
+
+          kubectl create secret generic frontend-secret \
+          --from-literal=NEXT_PUBLIC_BACKEND_API_URL=${{DOCKER_USERNAME}} \
+          --from-literal=secret_key=${{DOCKER_PASSWORD}} \
+          --from-literal=NEXT_PUBLIC_FRONTEND_API_URL=${{DOCKER_PASSWORD}} \
+          --namespace=default \
+          --dry-run=client -o yaml
+
+          kubectl create secret generic backend-secret \
+          --from-literal=GOOGLE_CLIENT_ID=${{secrets.GOOGLE_CLIENT_ID}} \
+          --from-literal=GOOGLE_CLIENT_SECRET=${{secrets.GOOGLE_CLIENT_SECRET}} \
+          --from-literal=secret_key=${{secrets.SECRET_KEY}} \
+          --from-literal=DATABASE_URL=${{secrets.DATABASE_URL}} \
+          --from-literal=Redis_URL=${{secrets.REDIS_URL}} \
+          --from-literal=password=${{secrets.REDIS_PASSWORD}} \
+          --from-literal=port=${{secrets.REDIS_PORT}} \
+          --namespace=default \
+          --dry-run=client -o yaml
+
+          kubectl create secret generic kafka-consumer-secret \
+          --from-literal=DATABASE_URL=${{secrets.DATABASE_URL}} \
+          --namespace=default \
+          --dry-run=client -o yaml
+
+          kubectl create secret generic ws-secret \
+          --from-literal=DATABASE_URL=${{secrets.DATABASE_URL}} \
+          --from-literal=Redis_URL=${{secrets.REDIS_URL}} \
+          --from-literal=password=${{secrets.REDIS_PASSWORD}} \
+          --from-literal=port=${{secrets.REDIS_PORT}} \
+          --namespace=default \
+          --dry-run=client -o yaml
+
+          kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
+           < secret/docker-secret.yaml \
+           > secret/docker-sealed-secret.yaml
+           rm -rf secret/docker-secret.yaml
+
+          kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
+          < secret/frontend-secret.yaml \
+           > secret/frontend-sealed-secret.yaml
+          rm -rf secret/frontend-secret.yaml
+
+
+           kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
+           < secret/backend-secret.yaml \
+           > secret/backend-sealed-secret.yaml
+           rm -rf secret/backend-secret.yaml
+
+
+          kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
+          < secret/kafka-consumer-secret.yaml \
+          > secret/kafka-consumer-sealed-secret.yaml
+          rm -rf secret/kafka-consumer-secret.yaml
+
+
+          kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
+          < secret/ws-server-secret.yaml \
+          > secret/ws-server-sealed-secret.yaml
+          rm -rf secret/ws-server-secret.yaml
+
+      - name: Commit and Push Changes
+        run: |
+          cd ~/gitops
+          git add .
+          git commit -m "Update images to SHA ${GITHUB_SHA}"
+          git push
+      
+  
+        
            
                   
     

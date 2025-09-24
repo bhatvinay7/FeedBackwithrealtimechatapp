@@ -14,7 +14,7 @@ try{
     ( async()=>{
 
     await consumerOneToOne.connect();
-    await consumerOneToOne.subscribe({ topic: 'one-to-one-messages', fromBeginning: true });
+    await consumerOneToOne.subscribe({ topic: 'one-to-one-messages', fromBeginning: false });
     
     await consumerOneToOne.run({
       eachMessage: async ({ message }) => {
