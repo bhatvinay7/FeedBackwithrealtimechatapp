@@ -76,8 +76,6 @@ wss.on("connection", (ws) => {
         ?.keys()
         .next()?.value!.split("-")?.[0];
         
-      
-
         if (previousRoomId! != message.roomId.toString()) {
          
           rooms.get(userRoomMap
