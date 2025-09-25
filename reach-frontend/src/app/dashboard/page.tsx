@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import useAxiosInstance from "@/lib/axiosIntercepter";
 import SuccessfulNotification  from "@/components/ui/SuccessNotification";
 
-export enum ProjectStatus {
+enum ProjectStatus {
   PENDING = "PENDING",
   IN_PROGRESS = "IN_PROGRESS",
   COMPLETED = "COMPLETED",
