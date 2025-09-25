@@ -44,7 +44,7 @@ export default function  FeedbackCard(){
   useEffect(()=>{
   async function fetch(){
     try{
-      const response=await gettManagerFeedBackDetail(params.feedbackId)
+      const response=await gettManagerFeedBackDetail(params?.feedbackId)
       setResponse(response)
       console.log(response)
     }
