@@ -12,14 +12,19 @@ import { Label } from "@/components/ui/label";
 import useAxiosInstance from "@/lib/axiosIntercepter";
 import SuccessfulNotification  from "@/components/ui/SuccessNotification";
 
-export const ProjectStatusSchema = z.enum([
-  
-  "PENDING", "IN_PROGRESS", "COMPLETED",'NOT_STARTED'
-  
+export enum ProjectStatus {
+  PENDING = "PENDING",
+  IN_PROGRESS = "IN_PROGRESS",
+  COMPLETED = "COMPLETED",
+  NOT_STARTED = "NOT_STARTED",
+}
+
+const ProjectStatusSchema = z.enum([
+  ProjectStatus.PENDING,
+  ProjectStatus.IN_PROGRESS,
+  ProjectStatus.COMPLETED,
+  ProjectStatus.NOT_STARTED,
 ]);
-
-export type ProjectStatusType = z.infer<typeof ProjectStatusSchema>;
-
 
 
 type FormValues = {
