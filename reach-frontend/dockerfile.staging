@@ -17,6 +17,7 @@ ENV NEXT_PUBLIC_FRONTEND_URL=${NEXT_PUBLIC_FRONTEND_URL}
 WORKDIR /app
 COPY --from=installer /app ./
 RUN npm run build
+RUN npm prune --production
 
 FROM base AS runner
 WORKDIR /app

@@ -12,6 +12,7 @@ FROM base as builder
 WORKDIR /app
 COPY --from=installer /app  ./
 RUN npm run build
+RUN npm prune --production
 
 FROM base as runner
 WORKDIR /app

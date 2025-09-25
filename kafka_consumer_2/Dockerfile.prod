@@ -6,8 +6,9 @@ ENV DATABASE_URL=${DATABASE_URL}
 WORKDIR /app
 COPY ./package*.json .
 COPY . .
-RUN npm install --prod
+RUN npm install
 RUN npx prisma generate
+RUN npm prune --production
 
 FROM base AS builder 
 WORKDIR /app
