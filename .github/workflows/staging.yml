@@ -26,8 +26,8 @@ jobs:
       - name: Build & Push kafka_consumer_1
         uses: docker/build-push-action@v5
         with:
-          context: ./kafka_consumer_1
-          file: Dockerfile.staging
+          context: .
+          file: ./kafka_consumer_1/Dockerfile.staging
           build-args: |
                 DATABASE_URL=${{secrets.DATABASE_URL}}
           target: runner      
@@ -39,8 +39,8 @@ jobs:
       - name: Build & Push kafka_consumer_2
         uses: docker/build-push-action@v5
         with:
-          context: ./kafka_consumer_2
-          file: Dockerfile.staging
+          context: .
+          file: ./kafka_consumer_2/Dockerfile.staging
           build-args: |
                 DATABASE_URL=${{secrets.DATABASE_URL}}
           target: runner      
@@ -52,8 +52,8 @@ jobs:
       - name: Build & Push ws-server
         uses: docker/build-push-action@v5
         with:
-          context: ./ws-server
-          file: Dockerfile.staging
+          context: .
+          file: ./ws-server/Dockerfile.staging
           build-args: |
                 DATABASE_URL=${{secrets.DATABASE_URL}}
           target: runner      
@@ -65,8 +65,8 @@ jobs:
       - name: Build & push reach_backend
         uses: docker/build-push-action@v5
         with:
-          context: ./reach-backend
-          file: Dockerfile.staging
+          context: .
+          file: ./reach-backend/Dockerfile.staging
           target: runner
           push: true
           tags: |
@@ -76,8 +76,8 @@ jobs:
       - name: Build & push reach
         uses: docker/build-push-action@v5
         with:
-          context: ./reach-frontend
-          file: Dockerfile.staging
+          context: .
+          file: ./reach-frontend/Dockerfile.staging
           build-args: |
                 NEXT_PUBLIC_BACKEND_API_URL=${{secrets.NEXT_PUBLIC_BACKEND_API_URL}}
                 NEXT_PUBLIC_FRONTEND_API_URL=${{secrets.NEXT_PUBLIC_FRONTEND_API_URL}}
