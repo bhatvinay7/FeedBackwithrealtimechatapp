@@ -61,7 +61,7 @@ export default function Sidebar() {
       },
     },
     {
-      href: "/dashboard/feedBack",
+      href: "/dashboard/feedback",
       icon: <MessageSquare aria-label="feedback" className="text-gray-700 w-5 h-5" />,
       label: "Feedback",
       click: (link: string) => {
@@ -69,7 +69,7 @@ export default function Sidebar() {
       },
     },
 {
-      href: "/dashboard/projectReview",
+      href: "/dashboard/project-review",
       icon: <MessageSquareText aria-label="project review" className="text-gray-700 w-5 h-5" />,
       label: "Project Review",
       click: (link: string) => {

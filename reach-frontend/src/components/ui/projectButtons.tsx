@@ -27,7 +27,7 @@ export default function ProjectButtons({props}:{props:{projectId:number | null |
 
 
   <button
-    onClick={()=>router.push(`/dashboard/projectDetails/${props.projectId}`)}
+    onClick={()=>router.push(`/dashboard/project-details/${props.projectId}`)}
     className=" hover:bg-gray-100 border-[1px] ring-1  ring-gray-300 text-sm border-gray-100 text-black w-fit px-2 py-1.5 rounded-sm bg-gray-200 transition duration-200"
   >
     Project Detail
