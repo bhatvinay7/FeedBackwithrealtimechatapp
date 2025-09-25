@@ -126,7 +126,7 @@ jobs:
 
       - name: Update values.yml and seal secret
         run: |
-          
+         
           cd /gitops/Helm/chart.prod
           export GITOPS_BRANCH=${{secrets.GITOPS_BRANCH}}
           export GITOPS_REPO=${{secrets.GITOPS_REPO}}
@@ -151,8 +151,7 @@ jobs:
 
       - name: Create and Seal the Secret
         run: |
-          
-          cd ~/gitops/Helm/chart.prod
+          cd /gitops/Helm/chart.prod
           export GITOPS_BRANCH=${{secrets.GITOPS_BRANCH}}
           git checkout $GITOPS_BRANCH
           kubeseal --fetch-cert --controller-name sealed-secrets-controller --controller-namespace sealed-secrets > pub-sealed-secrets.pem
@@ -225,7 +224,7 @@ jobs:
 
       - name: Commit and Push Changes
         run: |
-          cd ~/gitops
+          cd gitops
           git config user.name "ci-bot"
           git config user.email "ci-bot@example.com"
           git add .
