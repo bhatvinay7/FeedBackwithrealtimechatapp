@@ -130,7 +130,7 @@ jobs:
           export GITOPS_BRANCH=${{secrets.GITOPS_BRANCH}}
           git checkout $GITOPS_BRANCH
 
-          yq eval -i -y  \
+          yq eval -i   \
           ".services.frontend.image = \"reach-frontend:${GITHUB_SHA}\" | \
           .services.backend.image = \"reach-backend:${GITHUB_SHA}\" | \
           .services.ws-server.image = \"ws-server:${GITHUB_SHA}\" | \
