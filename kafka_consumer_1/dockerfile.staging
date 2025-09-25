@@ -1,6 +1,6 @@
 FROM node:20-alpine as base
 
-FROM base as intaller
+FROM base as installer
 WORKDIR /app
 ARG DATABASE_URL
 ENV DATABASE_URL=${DATABASE_URL}
