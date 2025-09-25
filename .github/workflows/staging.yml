@@ -114,18 +114,21 @@ jobs:
 
       - name: Checkout GitOps repo
         run: |
+          apt-get update && apt-get install -y git
           mkdir -p ~/gitops
           cd ~/gitops
           export GITOPS_BRANCH=${{secrets.GITOPS_BRANCH}}
           export GITOPS_REPO=${{secrets.GITOPS_REPO}}
-
-          git clone --branch $GITOPS_BRANCH $GITOPS_REPO
+          export TOKEN=${{secrets.TOKEN}}
+          export DOCKER_USERNAME=${{secrets.DOCKER_USERNAME}}
+          git clone --branch $GITOPS_BRANCH https://$TOKEN@github.com/$DOCKER_USERNAME/$GITOPS_REPO.git
+          git checkout $GITOPS_BRANCH
           git config user.name "ci-bot"
           git config user.email "ci-bot@example.com"
 
       - name: Update values.yml and seal secret
         run: |
-          apt-get update && apt-get install -y git
+         
           cd ~/gitops/Helm/chart.prod
           export GITOPS_BRANCH=${{secrets.GITOPS_BRANCH}}
           export GITOPS_REPO=${{secrets.GITOPS_REPO}}
