@@ -1,15 +1,15 @@
-FROM node:20-alpine as base
+FROM node:20-alpine AS base
 
-FROM base as installer
-WORKDIR /app
+FROM base AS installer
 ARG DATABASE_URL
 ENV DATABASE_URL=${DATABASE_URL}
+WORKDIR /app
 COPY ./package*.json .
 COPY . .
 RUN npm install --prod
 RUN npx prisma generate
 
-FROM base as builder 
+FROM base AS builder 
 WORKDIR /app
 COPY --from=installer /app  ./
 RUN npm run build

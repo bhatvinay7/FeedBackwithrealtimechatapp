@@ -1,15 +1,15 @@
-FROM node:20-alpine as base
+FROM node:20-alpine AS base
 
-FROM base as intaller
-WORKDIR /app
+FROM base AS intaller
 ARG DATABASE_URL
 ENV DATABASE_URL=${DATABASE_URL}
+WORKDIR /app
 COPY ./package*.json .
 RUN npm install --include=dev
 COPY . .
 RUN npx prisma generate
 
-FROM base as builder 
+FROM base AS builder 
 ARG NEXT_PUBLIC_BACKEND_URL
 ARG NEXT_PUBLIC_FRONTEND_URL
 ENV NEXT_PUBLIC_BACKEND_URL=${NEXT_PUBLIC_BACKEND_URL}
@@ -18,7 +18,7 @@ WORKDIR /app
 COPY --from=installer /app ./
 RUN npm run build
 
-FROM base as runner
+FROM base AS runner
 WORKDIR /app
 COPY --from=builder  /app ./
 
