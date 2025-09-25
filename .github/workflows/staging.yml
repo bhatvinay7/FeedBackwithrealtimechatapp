@@ -114,20 +114,20 @@ jobs:
 
       - name: Checkout GitOps repo
         run: |
-          mkdir -p ~/gitops
-          cd gitops
-          sudo apt-get update && sudo apt-get install -y git
           export GITOPS_BRANCH=${{secrets.GITOPS_BRANCH}}
           export GITOPS_REPO=${{secrets.GITOPS_REPO}}
           export TOKEN=${{secrets.TOKEN}}
+          mkdir -p ~/gitops
+          
+          sudo apt-get update && sudo apt-get install -y git yq
           export DOCKER_USERNAME=${{secrets.DOCKER_USERNAME}}
-          git clone --branch $GITOPS_BRANCH https://$TOKEN@github.com/$DOCKER_USERNAME/$GITOPS_REPO.git
+          git clone --branch $GITOPS_BRANCH https://$TOKEN@github.com/$DOCKER_USERNAME/$GITOPS_REPO.git  ~/gitops
         
 
       - name: Update values.yml and seal secret
         run: |
          
-          cd /gitops/Helm/chart.prod
+          cd ~/gitops/Helm/chart.prod
           export GITOPS_BRANCH=${{secrets.GITOPS_BRANCH}}
           export GITOPS_REPO=${{secrets.GITOPS_REPO}}
           export GITOPS_BRANCH=${{secrets.GITOPS_BRANCH}}
@@ -151,7 +151,7 @@ jobs:
 
       - name: Create and Seal the Secret
         run: |
-          cd /gitops/Helm/chart.prod
+          cd ~/gitops/Helm/chart.prod
           export GITOPS_BRANCH=${{secrets.GITOPS_BRANCH}}
           git checkout $GITOPS_BRANCH
           kubeseal --fetch-cert --controller-name sealed-secrets-controller --controller-namespace sealed-secrets > pub-sealed-secrets.pem
