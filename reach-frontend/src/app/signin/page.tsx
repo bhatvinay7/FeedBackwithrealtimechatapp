@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { useForm } from "react-hook-form";
 import ErrorNotificationUi from "@/components/ui/errorNotification";
 import { z } from "zod";
@@ -18,7 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { FcGoogle, FcPrevious } from "react-icons/fc";
+import { FcGoogle} from "react-icons/fc";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 const formSchema = z.object({
@@ -32,10 +32,17 @@ type SignInValues = z.infer<typeof formSchema>;
 
 export default function SignInForm() {
   const [role, setRole] = useState<string>("employee");
+  const [from, setFrom]=useState<string|null>(null)
+  const [info, setInfo]=useState<string|null>(null)
 
-  const searchParams = useSearchParams();
-  const from = searchParams.get("from") || "/";
-  const urlInfo = searchParams.get("error");
+  useEffect(()=>{
+
+    const searchParams = useSearchParams();
+    setFrom(searchParams.get("from") || "/")
+    setInfo(searchParams.get("error"))
+
+
+  },[])
   // setPreviousPath(previousPath)
 
   const form = useForm<SignInValues>({
@@ -72,7 +79,7 @@ export default function SignInForm() {
   }
   return (
     <div className="  w-ful h-screen flex justify-center bg-[] p-3 items-center">
-      <ErrorNotificationUi prop={{ message: urlInfo }} />
+      <ErrorNotificationUi prop={{ message: info}} />
 
       <div className=" w-md mx-auto mt-10 bg-[#f7f9f4] p-6 rounded-sm shadow-md border border-gray-300 space-y-6">
         <h2 className="text-2xl font-bold text-start">Sign In</h2>
