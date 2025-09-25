@@ -9,8 +9,8 @@ on:
       - dev   
 jobs:
   build-and-push:
-    runs-on: ubuntu-latest
     environment: staging
+    runs-on: ubuntu-latest
     env:
       COMMIT_SHA: ${{ github.sha }}
     steps:
@@ -27,7 +27,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./kafka_consumer_1
-          file: Dockerfile.staging
+          file: ./kafka_consumer_1/Dockerfile.staging
           build-args: |
                 DATABASE_URL=${{secrets.DATABASE_URL}}
           push: true
@@ -39,7 +39,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./kafka_consumer_2
-          file: Dockerfile.staging
+          file: ./kafka_consumer_2/Dockerfile.staging
           build-args: |
                 DATABASE_URL=${{secrets.DATABASE_URL}} 
           push: true
@@ -51,7 +51,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./ws-server
-          file: Dockerfile.staging
+          file: ./ws-server/Dockerfile.staging
           build-args: |
                 DATABASE_URL=${{secrets.DATABASE_URL}}
           push: true
@@ -63,7 +63,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./reach-backend
-          file: Dockerfile.staging
+          file: ./reach-backend/Dockerfile.staging
           push: true
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/reach-backend:${{ env.COMMIT_SHA }}
@@ -73,7 +73,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./reach-frontend
-          file: Dockerfile.staging
+          file: ./reach-frontend/Dockerfile.staging
           build-args: |
                 NEXT_PUBLIC_BACKEND_API_URL=${{secrets.NEXT_PUBLIC_BACKEND_API_URL}}
                 NEXT_PUBLIC_FRONTEND_API_URL=${{secrets.NEXT_PUBLIC_FRONTEND_API_URL}}
