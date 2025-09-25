@@ -115,7 +115,7 @@ jobs:
       - name: Checkout GitOps repo
         run: |
           mkdir -p ~/gitops
-          cd ~/gitops
+          cd gitops
           sudo apt-get update && sudo apt-get install -y git
           export GITOPS_BRANCH=${{secrets.GITOPS_BRANCH}}
           export GITOPS_REPO=${{secrets.GITOPS_REPO}}
@@ -126,8 +126,8 @@ jobs:
 
       - name: Update values.yml and seal secret
         run: |
-         
-          cd ~/gitops/Helm/chart.prod
+          
+          cd /gitops/Helm/chart.prod
           export GITOPS_BRANCH=${{secrets.GITOPS_BRANCH}}
           export GITOPS_REPO=${{secrets.GITOPS_REPO}}
           export GITOPS_BRANCH=${{secrets.GITOPS_BRANCH}}
