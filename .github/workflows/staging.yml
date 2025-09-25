@@ -129,11 +129,11 @@ jobs:
           cd ~/gitops/Helm/chart.prod
           export GITOPS_BRANCH=${{secrets.GITOPS_BRANCH}}
           git checkout $GITOPS_BRANCH                     
-          yq eval -i '.services.frontend.image = "reach-frontend:'"$GITHUB_SHA"'"' values.prod.yml
-          yq eval -i '.services.backend.image = "reach-backend:'"$GITHUB_SHA"'"' values.prod.yml
-          yq eval -i '.services.ws-server.image = "ws-server:'"$GITHUB_SHA"'"' values.prod.yml
-          yq eval -i '.services.kafka_consumer1.image = "kafka-consumer1:'"$GITHUB_SHA"'"' values.prod.yml
-          yq eval -i '.services.kafka_consumer2.image = "kafka-consumer2:'"$GITHUB_SHA"'"' values.prod.yml
+          yq eval -i -y '.services.frontend.image = "reach-frontend:'"$GITHUB_SHA"'"' values.prod.yml
+          yq eval -i -y '.services.backend.image = "reach-backend:'"$GITHUB_SHA"'"' values.prod.yml
+          yq eval -i -y '.services.ws-server.image = "ws-server:'"$GITHUB_SHA"'"' values.prod.yml
+          yq eval -i -y '.services.kafka_consumer1.image = "kafka-consumer1:'"$GITHUB_SHA"'"' values.prod.yml
+          yq eval -i -y '.services.kafka_consumer2.image = "kafka-consumer2:'"$GITHUB_SHA"'"' values.prod.yml
 
 
 
