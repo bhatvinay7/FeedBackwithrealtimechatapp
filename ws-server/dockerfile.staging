@@ -2,20 +2,20 @@ FROM node:20-alpine as base
 FROM base AS installer
 ARG DATABASE_URL
 ENV DATABASE_URL=${DATABASE_URL}
-WORKDIR /app
-COPY ./package*.json .
-COPY . .
-RUN npm install --prod
+WORKDIR /app/ws-server
+COPY ./ws-server/package*.json ./
+COPY ./ws-server ./
+RUN cd ws-server && npm install --prod
 RUN npx prisma generate
 
 FROM base as builder 
-WORKDIR /app
-COPY --from=installer /app  ./
+WORKDIR /app/ws-server
+COPY --from=installer /app/ws-server  ./
 RUN npm run build
 RUN npm prune --production
 
 FROM base as runner
-WORKDIR /app
-COPY --from=builder /app  ./
+WORKDIR /app/ws-server
+COPY --from=builder /app/ws-server  ./
 EXPOSE 8080
 CMD ["node","run","start"]

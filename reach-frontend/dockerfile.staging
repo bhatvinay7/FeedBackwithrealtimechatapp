@@ -1,12 +1,12 @@
 FROM node:20-alpine AS base
 
 FROM base AS installer
-WORKDIR /app
+WORKDIR /app/reach-frontend
 ARG DATABASE_URL
 ENV DATABASE_URL=${DATABASE_URL}
-COPY ./package*.json .
+COPY ./reach-frontend/package*.json ./
 RUN npm install --include=dev
-COPY . .
+COPY ./reach-frontend ./
 RUN npx prisma generate
 
 FROM base AS builder 
@@ -14,12 +14,12 @@ ARG NEXT_PUBLIC_BACKEND_URL
 ARG NEXT_PUBLIC_FRONTEND_URL
 ENV NEXT_PUBLIC_BACKEND_URL=${NEXT_PUBLIC_BACKEND_URL}
 ENV NEXT_PUBLIC_FRONTEND_URL=${NEXT_PUBLIC_FRONTEND_URL}
-WORKDIR /app
-COPY --from=installer /app ./
+WORKDIR /app/reach-frontend
+COPY --from=installer /app/reach-frontend ./
 RUN npm run build
 RUN npm prune --production
 
 FROM base AS runner
-WORKDIR /app
-COPY --from=builder  /app ./
+WORKDIR /app/reach-frontend
+COPY --from=builder  /app/reach-frontend ./
 CMD ["node","server.js"]
