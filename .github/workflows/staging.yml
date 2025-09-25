@@ -123,29 +123,18 @@ jobs:
           export DOCKER_USERNAME=${{secrets.DOCKER_USERNAME}}
           git clone --branch $GITOPS_BRANCH https://$TOKEN@github.com/$DOCKER_USERNAME/$GITOPS_REPO.git  ~/gitops
           
-      - name: Debug GitOps repo
-        run: |
-             ls -R ~/gitops
-
-
-      - name: Update values.yml and seal secret
+    
+      - name: Update YAML images
         run: |
           cd ~/gitops/Helm/chart.prod
           export GITOPS_BRANCH=${{secrets.GITOPS_BRANCH}}
-          export GITOPS_REPO=${{secrets.GITOPS_REPO}}
-          export GITOPS_BRANCH=${{secrets.GITOPS_BRANCH}}
           git checkout $GITOPS_BRANCH
-    
-          yq -i y ".services.frontend.image = \"reach-frontend:${GITHUB_SHA}\"" values.prod.yml
+          yq eval -i '.services.frontend.image = "reach-frontend:'"$GITHUB_SHA"'"' values.prod.yml
+          yq eval -i '.services.backend.image = "reach-backend:'"$GITHUB_SHA"'"' values.prod.yml
+          yq eval -i '.services.ws-server.image = "ws-server:'"$GITHUB_SHA"'"' values.prod.yml
+          yq eval -i '.services.kafka_consumer1.image = "kafka-consumer1:'"$GITHUB_SHA"'"' values.prod.yml
+          yq eval -i '.services.kafka_consumer2.image = "kafka-consumer2:'"$GITHUB_SHA"'"' values.prod.yml
 
-          yq -i y ".services.backend.image = \"reach-backend:${GITHUB_SHA}\"" values.prod.yml
-
-          yq -i y ".services.ws-server.image = \"reach-ws-server:${GITHUB_SHA}\"" values.prod.yml
-
-          yq -i y ".services.kafka_consumer1.image = \"kafka-consumer1:${GITHUB_SHA}\"" values.prod.yml
-
-          yq -i y ".services.kafka_consumer2.image = \"kafka-consumer2:${GITHUB_SHA}\"" values.prod.yml
-          
       - name: Setup Kubeconfig
         run: |
           mkdir -p $HOME/.kube
