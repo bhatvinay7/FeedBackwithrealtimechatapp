@@ -151,7 +151,7 @@ jobs:
 
       - name: Create and Seal the Secret
         run: |
-          
+          ls
           cd ~/gitops/Helm/chart.prod
           export GITOPS_BRANCH=${{secrets.GITOPS_BRANCH}}
           git checkout $GITOPS_BRANCH
