@@ -8,13 +8,12 @@ COPY ./kafka_consumer_1/package*.json ./
 COPY ./kafka_consumer_1 ./
 RUN npm install
 RUN npx prisma generate
-RUN npm prune --production
 
 FROM base AS builder 
 WORKDIR /app/kafka_consumer_1
 COPY --from=installer /app/kafka_consumer_1  ./
 RUN npm run build
-
+RUN npm prune --production
 FROM base as runner
 WORKDIR /app/kafka_consumer_1
 COPY --from=builder /app/kafka_consumer_1  ./
