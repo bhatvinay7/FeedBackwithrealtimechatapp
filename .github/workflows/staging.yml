@@ -130,7 +130,6 @@ jobs:
 
       - name: Update values.yml and seal secret
         run: |
-          ls -R ~/gitops
           cd ~/gitops/Helm/chart.prod
           export GITOPS_BRANCH=${{secrets.GITOPS_BRANCH}}
           export GITOPS_REPO=${{secrets.GITOPS_REPO}}
