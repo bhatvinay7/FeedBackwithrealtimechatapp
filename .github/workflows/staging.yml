@@ -122,12 +122,15 @@ jobs:
           sudo apt-get update && sudo apt-get install -y git yq
           export DOCKER_USERNAME=${{secrets.DOCKER_USERNAME}}
           git clone --branch $GITOPS_BRANCH https://$TOKEN@github.com/$DOCKER_USERNAME/$GITOPS_REPO.git  ~/gitops
-          - run: ls -R ~/gitops
+          
+      - name: Debug GitOps repo
+        run: |
+             ls -R ~/gitops
 
 
       - name: Update values.yml and seal secret
         run: |
-          - run: ls -R ~/gitops
+          ls -R ~/gitops
           cd ~/gitops/Helm/chart.prod
           export GITOPS_BRANCH=${{secrets.GITOPS_BRANCH}}
           export GITOPS_REPO=${{secrets.GITOPS_REPO}}
