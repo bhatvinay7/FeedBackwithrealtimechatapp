@@ -126,6 +126,7 @@ jobs:
 
       - name: Update values.yml and seal secret
         run: |
+          ls
           cd ~/gitops
           ls
           cd ..
