@@ -140,7 +140,6 @@ jobs:
           yq  -i  -y ".services.\"kafka_consumer1.image\" = \"kafka_consumer1:${GITHUB_SHA}\"" values.prod.yml
           yq  -i  -y ".services.\"kafka_consumer2.image\" = \"kafka_consumer2:${GITHUB_SHA}\"" values.prod.yml
 
-
       - name: Setup Kubeconfig
         run: |
           export KUBERNETES_CLUSTER_REGION=${{secrets.KUBERNETES_CLUSTER_REGION}}
