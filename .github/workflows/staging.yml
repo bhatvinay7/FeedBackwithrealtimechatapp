@@ -115,7 +115,6 @@ jobs:
         run: |
           sudo apt-get update && sudo apt-get install -y ca-certificates
 
-
       - name: Checkout GitOps repo
         run: |
           export GITOPS_BRANCH=${{secrets.GITOPS_BRANCH}}
@@ -139,6 +138,12 @@ jobs:
           yq  -i  -y ".services.\"ws-server.image\" = \"ws-server:${GITHUB_SHA}\"" values.prod.yml
           yq  -i  -y ".services.\"kafka_consumer1.image\" = \"kafka_consumer1:${GITHUB_SHA}\"" values.prod.yml
           yq  -i  -y ".services.\"kafka_consumer2.image\" = \"kafka_consumer2:${GITHUB_SHA}\"" values.prod.yml
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{secrets.ACTION_ROLE}}
+          aws-region: ${{secrets.AWS-REGION}}
 
       - name: Setup Kubeconfig
         run: |
