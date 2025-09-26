@@ -164,7 +164,7 @@ jobs:
           cd ~/gitops/Helm/chart.prod
           export GITOPS_BRANCH=${{secrets.GITOPS_BRANCH}}
           git checkout $GITOPS_BRANCH
-          kubeseal --fetch-cert --controller-name sealed-secrets-controller --controller-namespace sealed-secrets > pub-sealed-secrets.pem
+          kubeseal --fetch-cert --controller-name sealed-secrets --controller-namespace sealed-secrets > pub-sealed-secrets.pem
 
           kubectl create secret docker-registry docker-secret \
           --docker-username=${{secrets.DOCKER_USERNAME}} \
