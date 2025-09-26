@@ -157,8 +157,16 @@ jobs:
       - name : Setup  Seal secret --controller-name
         run: |
           helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm repo  update
+     
+          if helm status sealed-secrets -n sealed-secrets >/dev/null 2>&1; then
+          echo "Sealed Secrets already installed. Upgrading..."
+          helm upgrade sealed-secrets bitnami/sealed-secrets -n sealed-secrets
+          else
+          echo "Installing Sealed Secrets..."
           helm install sealed-secrets bitnami/sealed-secrets --namespace sealed-secrets --create-namespace
-
+          fi
+          
       - name: Create and Seal the Secret
         run: |
           cd ~/gitops/Helm/chart.prod
