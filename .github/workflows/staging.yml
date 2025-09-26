@@ -111,6 +111,10 @@ jobs:
             sudo install -m 755 kubeseal /usr/local/bin/kubeseal
 
 
+      - name : Install CA for AWS eks
+        run: |
+          sudo apt-get update && sudo apt-get install -y ca-certificates
+
 
       - name: Checkout GitOps repo
         run: |
@@ -139,8 +143,9 @@ jobs:
 
       - name: Setup Kubeconfig
         run: |
-          mkdir -p $HOME/.kube
-          echo "${{ secrets.KUBECONFIG_CONTENT }}" > $HOME/.kube/config
+          export KUBERNETES_CLUSTER_REGION=${{secrets.KUBERNETES_CLUSTER_REGION}}
+          export KUBERNETES_CLUSTER_NAME=${{secrets.KUBERNETES_CLUSTER_NAME}}
+          aws eks update-kubeconfig --region $KUBERNETES_CLUSTER_REGION --name $KUBERNETES_CLUSTER_NAME
           kubectl get nodes
 
       - name: Create and Seal the Secret
