@@ -154,6 +154,10 @@ jobs:
           export KUBERNETES_CLUSTER_NAME=${{secrets.KUBERNETES_CLUSTER_NAME}}
           aws eks update-kubeconfig --region $KUBERNETES_CLUSTER_REGION --name $KUBERNETES_CLUSTER_NAME
           kubectl get nodes
+      - name : Setup  Seal secret --controller-name
+        run: |
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm install sealed-secrets bitnami/sealed-secrets --namespace sealed-secrets --create-namespace
 
       - name: Create and Seal the Secret
         run: |
@@ -161,6 +165,7 @@ jobs:
           export GITOPS_BRANCH=${{secrets.GITOPS_BRANCH}}
           git checkout $GITOPS_BRANCH
           kubeseal --fetch-cert --controller-name sealed-secrets-controller --controller-namespace sealed-secrets > pub-sealed-secrets.pem
+
           kubectl create secret docker-registry docker-secret \
           --docker-username=${{secrets.DOCKER_USERNAME}} \
           --docker-password=${{secrets.DOCKER_PASSWORD}} \
