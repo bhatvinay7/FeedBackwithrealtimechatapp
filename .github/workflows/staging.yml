@@ -167,63 +167,90 @@ jobs:
           helm install sealed-secrets bitnami/sealed-secrets --namespace sealed-secrets --create-namespace
           fi
 
-      - name: Create and Seal the Secret
-        run: |
+
+      - name : create scripts/create-secrets.sh
+        run : |
+          mkdir -p scripts
+          touch scripts/create-secrets.sh
+          cat << 'EOF' > scripts/create-secrets.sh
+          set -e
           cd ~/gitops/Helm/chart.prod
-          export GITOPS_BRANCH=${{secrets.GITOPS_BRANCH}}
-          git checkout $GITOPS_BRANCH
-          kubeseal --fetch-cert --controller-name sealed-secrets --controller-namespace sealed-secrets > pub-sealed-secrets.pem
-          
+
+
+          kubeseal --fetch-cert \
+          --controller-name sealed-secrets \
+          --controller-namespace sealed-secrets \
+          > pub-sealed-secrets.pem
 
           kubectl create secret docker-registry docker-secret \
-          --docker-username=${{secrets.DOCKER_USERNAME}} \
-          --docker-password=${{secrets.DOCKER_PASSWORD}} \
+          --docker-username="$DOCKER_USERNAME" \
+          --docker-password="$DOCKER_PASSWORD" \
           --namespace=default \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-           > secrets/docker-sealed-secret.yaml
+          > secrets/docker-sealed-secret.yaml
 
           kubectl create secret generic frontend-secret \
-          --from-literal=NEXT_PUBLIC_BACKEND_API_URL=${{secrets.NEXT_PUBLIC_BACKEND_API_URL}} \
-          --from-literal=secret_key=${{secrets.SECRET_KEY}} \
-          --from-literal=NEXT_PUBLIC_FRONTEND_API_URL=${{secrets.NEXT_PUBLIC_FRONTEND_API_URL}} \
-          --from-literal=NEXT_PUBLIC_WS_SERVER=${{secrets.NEXT_PUBLIC_WS_SERVER}} \
+          --from-literal=NEXT_PUBLIC_BACKEND_API_URL="$NEXT_PUBLIC_BACKEND_API_URL" \
+          --from-literal=secret_key="$SECRET_KEY" \
+          --from-literal=NEXT_PUBLIC_FRONTEND_API_URL="$NEXT_PUBLIC_FRONTEND_API_URL" \
+          --from-literal=NEXT_PUBLIC_WS_SERVER="$NEXT_PUBLIC_WS_SERVER" \
           --namespace=default \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-           > secrets/frontend-sealed-secret.yaml
+          > secrets/frontend-sealed-secret.yaml
 
           kubectl create secret generic backend-secret \
-          --from-literal=GOOGLE_CLIENT_ID=${{secrets.GOOGLE_CLIENT_ID}} \
-          --from-literal=GOOGLE_CLIENT_SECRET=${{secrets.GOOGLE_CLIENT_SECRET}} \
-          --from-literal=NEXT_PUBLIC_FRONTEND_API_URL=${{secrets.NEXT_PUBLIC_FRONTEND_API_URL}} \
-          --from-literal=secret_key=${{secrets.SECRET_KEY}} \
-          --from-literal=DATABASE_URL=${{secrets.DATABASE_URL}} \
-          --from-literal=Redis_URL=${{secrets.REDIS_URL}} \
-          --from-literal=password=${{secrets.REDIS_PASSWORD}} \
-          --from-literal=port=${{secrets.REDIS_PORT}} \
+          --from-literal=GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" \
+          --from-literal=GOOGLE_CLIENT_SECRET="$GOOGLE_CLIENT_SECRET" \
+          --from-literal=NEXT_PUBLIC_FRONTEND_API_URL="$NEXT_PUBLIC_FRONTEND_API_URL" \
+          --from-literal=secret_key="$SECRET_KEY" \
+          --from-literal=DATABASE_URL="$DATABASE_URL" \
+          --from-literal=Redis_URL="$REDIS_URL" \
+          --from-literal=password="$REDIS_PASSWORD" \
+          --from-literal=port="$REDIS_PORT" \
           --namespace=default \
-          --dry-run=client -o yaml \ 
+          --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-           > secrets/backend-sealed-secret.yaml
+          > secrets/backend-sealed-secret.yaml
 
 
           kubectl create secret generic kafka-consumer-secret \
-          --from-literal=DATABASE_URL=${{secrets.DATABASE_URL}} \
+          --from-literal=DATABASE_URL="$DATABASE_URL" \
           --namespace=default \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-           > secrets/kafka-consumer-sealed-secret.yaml
+          > secrets/kafka-consumer-sealed-secret.yaml
 
           kubectl create secret generic ws-secret \
-          --from-literal=DATABASE_URL=${{secrets.DATABASE_URL}} \
-          --from-literal=Redis_URL=${{secrets.REDIS_URL}} \
-          --from-literal=password=${{secrets.REDIS_PASSWORD}} \
-          --from-literal=port=${{secrets.REDIS_PORT}} \
+          --from-literal=DATABASE_URL="$DATABASE_URL" \
+          --from-literal=Redis_URL="$REDIS_URL" \
+          --from-literal=password="$REDIS_PASSWORD" \
+          --from-literal=port="$REDIS_PORT" \
           --namespace=default \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-           > secrets/ws-sealed-secret.yaml
+          > secrets/ws-sealed-secret.yaml
+          EOF
+
+          chmod +x scripts/create-secrets.sh
+
+                
+      - name: Create and Seal Secrets
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          NEXT_PUBLIC_BACKEND_API_URL: ${{ secrets.NEXT_PUBLIC_BACKEND_API_URL }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          NEXT_PUBLIC_FRONTEND_API_URL: ${{ secrets.NEXT_PUBLIC_FRONTEND_API_URL }}
+          NEXT_PUBLIC_WS_SERVER: ${{ secrets.NEXT_PUBLIC_WS_SERVER }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          REDIS_URL: ${{ secrets.REDIS_URL }}
+          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+          REDIS_PORT: ${{ secrets.REDIS_PORT }
+        run: bash scripts/create-secrets.sh
           
 
       - name: Commit and Push Changes
