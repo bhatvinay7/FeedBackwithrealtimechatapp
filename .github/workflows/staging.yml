@@ -179,7 +179,8 @@ jobs:
           --docker-username=${{secrets.DOCKER_USERNAME}} \
           --docker-password=${{secrets.DOCKER_PASSWORD}} \
           --namespace=default \
-          --dry-run=client -o yaml | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
+          --dry-run=client -o yaml \
+          | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
            > secrets/docker-sealed-secret.yaml
 
           kubectl create secret generic frontend-secret \
@@ -188,7 +189,8 @@ jobs:
           --from-literal=NEXT_PUBLIC_FRONTEND_API_URL=${{secrets.NEXT_PUBLIC_FRONTEND_API_URL}} \
           --from-literal=NEXT_PUBLIC_WS_SERVER=${{secrets.NEXT_PUBLIC_WS_SERVER}} \
           --namespace=default \
-          --dry-run=client -o yaml | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
+          --dry-run=client -o yaml \
+          | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
            > secrets/frontend-sealed-secret.yaml
 
           kubectl create secret generic backend-secret \
@@ -201,14 +203,16 @@ jobs:
           --from-literal=password=${{secrets.REDIS_PASSWORD}} \
           --from-literal=port=${{secrets.REDIS_PORT}} \
           --namespace=default \
-          --dry-run=client -o yaml | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
+          --dry-run=client -o yaml \ 
+          | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
            > secrets/backend-sealed-secret.yaml
 
 
           kubectl create secret generic kafka-consumer-secret \
           --from-literal=DATABASE_URL=${{secrets.DATABASE_URL}} \
           --namespace=default \
-          --dry-run=client -o yaml | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
+          --dry-run=client -o yaml \
+          | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
            > secrets/kafka-consumer-sealed-secret.yaml
 
           kubectl create secret generic ws-secret \
@@ -217,7 +221,8 @@ jobs:
           --from-literal=password=${{secrets.REDIS_PASSWORD}} \
           --from-literal=port=${{secrets.REDIS_PORT}} \
           --namespace=default \
-          --dry-run=client -o yaml | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
+          --dry-run=client -o yaml \ 
+          | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
            > secrets/ws-sealed-secret.yaml
           
 
