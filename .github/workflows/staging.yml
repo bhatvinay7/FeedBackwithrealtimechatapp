@@ -255,12 +255,15 @@ jobs:
 
       - name: Commit and Push Changes
         run: |
-          cd gitops
+          export GITOPS_BRANCH=${{secrets.GITOPS_BRANCH}}
+          cd ~/gitops
+          git checkout $GITOPS_BRANCH
           git config user.name "ci-bot"
           git config user.email "ci-bot@example.com"
+          git add --renormalize .
           git add .
           git commit -m "Update images to SHA ${GITHUB_SHA}"
-          git push
+          git push origin $GITOPS_BRANCH
       
   
         
