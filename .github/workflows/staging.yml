@@ -123,10 +123,10 @@ jobs:
           export GITOPS_BRANCH=${{secrets.GITOPS_BRANCH}}
           export GITOPS_REPO=${{secrets.GITOPS_REPO}}
           export TOKEN=${{secrets.TOKEN}}
+          export DOCKER_USERNAME=${{secrets.DOCKER_USERNAME}}
           mkdir -p ~/gitops
           
           sudo apt-get update && sudo apt-get install -y git yq
-          export DOCKER_USERNAME=${{secrets.DOCKER_USERNAME}}
           git clone --branch $GITOPS_BRANCH https://$TOKEN@github.com/$DOCKER_USERNAME/$GITOPS_REPO.git  ~/gitops
           
     
@@ -256,14 +256,22 @@ jobs:
       - name: Commit and Push Changes
         run: |
           export GITOPS_BRANCH=${{secrets.GITOPS_BRANCH}}
+          export GITOPS_REPO=${{secrets.GITOPS_REPO}}
+          export TOKEN=${{secrets.TOKEN}}
+          export DOCKER_USERNAME=${{secrets.DOCKER_USERNAME}}
           cd ~/gitops
           git checkout $GITOPS_BRANCH
           git config user.name "ci-bot"
           git config user.email "ci-bot@example.com"
           git add --renormalize .
           git add .
+          if git diff-index --quiet HEAD --; then
+          echo "No changes to commit"
+          else
           git commit -m "Update images to SHA ${GITHUB_SHA}"
-          git push origin $GITOPS_BRANCH
+
+          git push https://$TOKEN@github.com/$DOCKER_USERNAME/$GITOPS_REPO.git $GITOPS_BRANCH
+          fi
       
   
         
