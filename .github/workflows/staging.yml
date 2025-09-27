@@ -168,7 +168,7 @@ jobs:
           fi
 
       - name: Create and Seal the Secret
-        run: |
+        run: >
           cd ~/gitops/Helm/chart.prod
           export GITOPS_BRANCH=${{secrets.GITOPS_BRANCH}}
           git checkout $GITOPS_BRANCH
@@ -215,32 +215,32 @@ jobs:
           --dry-run=client -o yaml > secrets/ws-secret.yaml
 
           kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-           < secret/docker-secret.yaml \
-           > secret/docker-sealed-secret.yaml
+           < secrets/docker-secret.yaml \
+           > secrets/docker-sealed-secret.yaml
            rm -rf secrets/docker-secret.yaml
 
           kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          < secret/frontend-secret.yaml \
-           > secret/frontend-sealed-secret.yaml
+          < secrets/frontend-secret.yaml \
+           > secrets/frontend-sealed-secret.yaml
           rm -rf secrets/frontend-secret.yaml
 
 
            kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-           < secret/backend-secret.yaml \
-           > secret/backend-sealed-secret.yaml
+           < secrets/backend-secret.yaml \
+           > secrets/backend-sealed-secret.yaml
            rm -rf secrets/backend-secret.yaml
 
 
           kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          < secret/kafka-consumer-secret.yaml \
-          > secret/kafka-consumer-sealed-secret.yaml
+          < secrets/kafka-consumer-secret.yaml \
+          > secrets/kafka-consumer-sealed-secret.yaml
           rm -rf secrets/kafka-consumer-secret.yaml
 
 
           kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          < secret/ws-server-secret.yaml \
-          > secret/ws-server-sealed-secret.yaml
-          rm -rf secrets/ws-server-secret.yaml
+          < secrets/ws-secret.yaml \
+          > secrets/ws-sealed-secret.yaml
+          rm -rf secrets/ws-secret.yaml
 
       - name: Commit and Push Changes
         run: |
