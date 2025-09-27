@@ -168,7 +168,7 @@ jobs:
           fi
 
       - name: Create and Seal the Secret
-        run: >
+        run: |
           cd ~/gitops/Helm/chart.prod
           export GITOPS_BRANCH=${{secrets.GITOPS_BRANCH}}
           git checkout $GITOPS_BRANCH
@@ -179,7 +179,8 @@ jobs:
           --docker-username=${{secrets.DOCKER_USERNAME}} \
           --docker-password=${{secrets.DOCKER_PASSWORD}} \
           --namespace=default \
-          --dry-run=client -o yaml > secrets/docker-secret.yaml
+          --dry-run=client -o yaml | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
+           > secrets/docker-sealed-secret.yaml
 
           kubectl create secret generic frontend-secret \
           --from-literal=NEXT_PUBLIC_BACKEND_API_URL=${{secrets.NEXT_PUBLIC_BACKEND_API_URL}} \
@@ -187,7 +188,8 @@ jobs:
           --from-literal=NEXT_PUBLIC_FRONTEND_API_URL=${{secrets.NEXT_PUBLIC_FRONTEND_API_URL}} \
           --from-literal=NEXT_PUBLIC_WS_SERVER=${{secrets.NEXT_PUBLIC_WS_SERVER}} \
           --namespace=default \
-          --dry-run=client -o yaml > secrets/frontend-secret.yaml
+          --dry-run=client -o yaml | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
+           > secrets/frontend-sealed-secret.yaml
 
           kubectl create secret generic backend-secret \
           --from-literal=GOOGLE_CLIENT_ID=${{secrets.GOOGLE_CLIENT_ID}} \
@@ -199,12 +201,15 @@ jobs:
           --from-literal=password=${{secrets.REDIS_PASSWORD}} \
           --from-literal=port=${{secrets.REDIS_PORT}} \
           --namespace=default \
-          --dry-run=client -o yaml >  secrets/backend-secret.yaml
+          --dry-run=client -o yaml | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
+           > secrets/backend-sealed-secret.yaml
+
 
           kubectl create secret generic kafka-consumer-secret \
           --from-literal=DATABASE_URL=${{secrets.DATABASE_URL}} \
           --namespace=default \
-          --dry-run=client -o yaml > secrets/kafka-consumer-secret.yaml
+          --dry-run=client -o yaml | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
+           > secrets/kafka-consumer-sealed-secret.yaml
 
           kubectl create secret generic ws-secret \
           --from-literal=DATABASE_URL=${{secrets.DATABASE_URL}} \
@@ -212,35 +217,9 @@ jobs:
           --from-literal=password=${{secrets.REDIS_PASSWORD}} \
           --from-literal=port=${{secrets.REDIS_PORT}} \
           --namespace=default \
-          --dry-run=client -o yaml > secrets/ws-secret.yaml
-
-          kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-           < secrets/docker-secret.yaml \
-           > secrets/docker-sealed-secret.yaml
-           rm -rf secrets/docker-secret.yaml
-
-          kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          < secrets/frontend-secret.yaml \
-           > secrets/frontend-sealed-secret.yaml
-          rm -rf secrets/frontend-secret.yaml
-
-
-           kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-           < secrets/backend-secret.yaml \
-           > secrets/backend-sealed-secret.yaml
-           rm -rf secrets/backend-secret.yaml
-
-
-          kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          < secrets/kafka-consumer-secret.yaml \
-          > secrets/kafka-consumer-sealed-secret.yaml
-          rm -rf secrets/kafka-consumer-secret.yaml
-
-
-          kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          < secrets/ws-secret.yaml \
-          > secrets/ws-sealed-secret.yaml
-          rm -rf secrets/ws-secret.yaml
+          --dry-run=client -o yaml | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
+           > secrets/ws-sealed-secret.yaml
+          
 
       - name: Commit and Push Changes
         run: |
