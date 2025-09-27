@@ -166,7 +166,7 @@ jobs:
           echo "Installing Sealed Secrets..."
           helm install sealed-secrets bitnami/sealed-secrets --namespace sealed-secrets --create-namespace
           fi
-          
+
       - name: Create and Seal the Secret
         run: |
           cd ~/gitops/Helm/chart.prod
@@ -178,7 +178,7 @@ jobs:
           --docker-username=${{secrets.DOCKER_USERNAME}} \
           --docker-password=${{secrets.DOCKER_PASSWORD}} \
           --namespace=default \
-          --dry-run=client -o yaml
+          --dry-run=client -o yaml > /secret/docker-secret.yaml
 
           kubectl create secret generic frontend-secret \
           --from-literal=NEXT_PUBLIC_BACKEND_API_URL=${{secrets.NEXT_PUBLIC_BACKEND_API_URL}} \
@@ -186,7 +186,7 @@ jobs:
           --from-literal=NEXT_PUBLIC_FRONTEND_API_URL=${{secrets.NEXT_PUBLIC_FRONTEND_API_URL}} \
           --from-literal=NEXT_PUBLIC_WS_SERVER=${{secrets.NEXT_PUBLIC_WS_SERVER}} \
           --namespace=default \
-          --dry-run=client -o yaml
+          --dry-run=client -o yaml > /secret/frontend-secret.yaml
 
           kubectl create secret generic backend-secret \
           --from-literal=GOOGLE_CLIENT_ID=${{secrets.GOOGLE_CLIENT_ID}} \
@@ -198,12 +198,12 @@ jobs:
           --from-literal=password=${{secrets.REDIS_PASSWORD}} \
           --from-literal=port=${{secrets.REDIS_PORT}} \
           --namespace=default \
-          --dry-run=client -o yaml
+          --dry-run=client -o yaml >  /secret/backend-secret.yaml
 
           kubectl create secret generic kafka-consumer-secret \
           --from-literal=DATABASE_URL=${{secrets.DATABASE_URL}} \
           --namespace=default \
-          --dry-run=client -o yaml
+          --dry-run=client -o yaml > /secret/kafka-consumer-secret.yaml
 
           kubectl create secret generic ws-secret \
           --from-literal=DATABASE_URL=${{secrets.DATABASE_URL}} \
@@ -211,7 +211,7 @@ jobs:
           --from-literal=password=${{secrets.REDIS_PASSWORD}} \
           --from-literal=port=${{secrets.REDIS_PORT}} \
           --namespace=default \
-          --dry-run=client -o yaml
+          --dry-run=client -o yaml > /secret/ws-secret.yaml
 
           kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
            < secret/docker-secret.yaml \
