@@ -249,7 +249,7 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           REDIS_URL: ${{ secrets.REDIS_URL }}
           REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
-          REDIS_PORT: ${{ secrets.REDIS_PORT }
+          REDIS_PORT: ${{ secrets.REDIS_PORT }}
         run: bash scripts/create-secrets.sh
           
 
