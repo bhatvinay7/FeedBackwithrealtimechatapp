@@ -250,7 +250,10 @@ jobs:
           REDIS_URL: ${{ secrets.REDIS_URL }}
           REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
           REDIS_PORT: ${{ secrets.REDIS_PORT }}
-        run: bash scripts/create-secrets.sh
+        run: |
+          bash scripts/create-secrets.sh
+          cd ~/gitops/Helm/chart.prod
+          rm -rf pub-sealed-secrets.pem
           
 
       - name: Commit and Push Changes
@@ -270,7 +273,8 @@ jobs:
           else
           git commit -m "Update images to SHA ${GITHUB_SHA}"
 
-          git push https://$TOKEN@github.com/$DOCKER_USERNAME/$GITOPS_REPO.git $GITOPS_BRANCH
+          git push https://$DOCKER_USERNAME:$TOKEN@github.com/$DOCKER_USERNAME/$GITOPS_REPO.git $GITOPS_BRANCH
+
           fi
       
   
