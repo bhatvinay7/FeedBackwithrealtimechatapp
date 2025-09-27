@@ -221,7 +221,7 @@ jobs:
           --from-literal=password=${{secrets.REDIS_PASSWORD}} \
           --from-literal=port=${{secrets.REDIS_PORT}} \
           --namespace=default \
-          --dry-run=client -o yaml \ 
+          --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
            > secrets/ws-sealed-secret.yaml
           
