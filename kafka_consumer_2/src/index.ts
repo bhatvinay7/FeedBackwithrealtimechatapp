@@ -1,11 +1,19 @@
 import express from 'express'
 import { PrismaClient } from '@prisma/client'
+import dotenv from 'dotenv'
+dotenv.config()
 const prisma = new PrismaClient()
 const app = express();
-import { Kafka } from 'kafkajs';
+import { Kafka,SASLOptions } from 'kafkajs';
 const kafka = new Kafka({
-  clientId: 'my-app',
-  brokers: ['kafka1:9092', 'kafka2:9093','kafka3:9094']
+  clientId: 'feedback-client2',
+  brokers: ["feedback-cluster-kafka-bootstrap.kafka:9092"],
+  ssl: false,      
+  sasl: {
+    mechanism: 'plain',
+    username: process.env.username,
+    password: process.env.password
+  } as SASLOptions 
 })
 
 import { createClient } from "redis";

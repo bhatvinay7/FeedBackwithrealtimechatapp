@@ -132,15 +132,15 @@ jobs:
     
       - name: Update YAML images
         run: |
-          cd ~/gitops/Helm/chart.prod
+          cd ~/gitops/Helm/chart.staging/services
           export GITOPS_BRANCH=${{secrets.GITOPS_BRANCH}}
           git checkout $GITOPS_BRANCH
 
           yq  -i  -y ".services.frontend.image = \"reach-frontend:${GITHUB_SHA}\"" values.prod.yml
           yq  -i  -y ".services.backend.image = \"reach-backend:${GITHUB_SHA}\"" values.prod.yml
-          yq  -i  -y ".services.\"ws-server.image\" = \"ws-server:${GITHUB_SHA}\"" values.prod.yml
-          yq  -i  -y ".services.\"kafka_consumer1.image\" = \"kafka_consumer1:${GITHUB_SHA}\"" values.prod.yml
-          yq  -i  -y ".services.\"kafka_consumer2.image\" = \"kafka_consumer2:${GITHUB_SHA}\"" values.prod.yml
+          yq  -i  -y ".services.\"ws-server\".image = \"ws-server:${GITHUB_SHA}\"" values.prod.yml
+          yq  -i  -y ".services.\"kafka_consumer1\".image = \"kafka_consumer1:${GITHUB_SHA}\"" values.prod.yml
+          yq  -i  -y ".services.\"kafka_consumer2\".image = \"kafka_consumer2:${GITHUB_SHA}\"" values.prod.yml
 
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
@@ -167,14 +167,13 @@ jobs:
           helm install sealed-secrets bitnami/sealed-secrets --namespace sealed-secrets --create-namespace
           fi
 
-
       - name : create scripts/create-secrets.sh
         run : |
           mkdir -p scripts
           touch scripts/create-secrets.sh
           cat << 'EOF' > scripts/create-secrets.sh
           set -e
-          cd ~/gitops/Helm/chart.prod
+          cd ~/gitops/Helm/chart.staging/services
 
 
           kubeseal --fetch-cert \
@@ -182,25 +181,34 @@ jobs:
           --controller-namespace sealed-secrets \
           > pub-sealed-secrets.pem
 
-          kubectl create secret docker-registry docker-secret \
+          kubectl create secret docker-registry docker-sealed-secret \
           --docker-username="$DOCKER_USERNAME" \
           --docker-password="$DOCKER_PASSWORD" \
-          --namespace=default \
+          --namespace=feedback-services \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
           > secrets/docker-sealed-secret.yaml
 
-          kubectl create secret generic frontend-secret \
+
+          kubectl create secret generic  kafka-user-sealed-secret \
+          --docker-username="$KAFKA-USERNAME" \
+          --docker-password="$KAFKA-PASSWORD" \
+          --namespace=kafka \
+          --dry-run=client -o yaml \
+          | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
+          > secrets/kafka-user-sealed-secret.yaml
+
+          kubectl create secret generic frontend-sealed-secret \
           --from-literal=NEXT_PUBLIC_BACKEND_API_URL="$NEXT_PUBLIC_BACKEND_API_URL" \
           --from-literal=secret_key="$SECRET_KEY" \
           --from-literal=NEXT_PUBLIC_FRONTEND_API_URL="$NEXT_PUBLIC_FRONTEND_API_URL" \
           --from-literal=NEXT_PUBLIC_WS_SERVER="$NEXT_PUBLIC_WS_SERVER" \
-          --namespace=default \
+          --namespace=feedback-services \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
           > secrets/frontend-sealed-secret.yaml
 
-          kubectl create secret generic backend-secret \
+          kubectl create secret generic backend-sealed-secret \
           --from-literal=GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" \
           --from-literal=GOOGLE_CLIENT_SECRET="$GOOGLE_CLIENT_SECRET" \
           --from-literal=NEXT_PUBLIC_FRONTEND_API_URL="$NEXT_PUBLIC_FRONTEND_API_URL" \
@@ -209,32 +217,39 @@ jobs:
           --from-literal=Redis_URL="$REDIS_URL" \
           --from-literal=password="$REDIS_PASSWORD" \
           --from-literal=port="$REDIS_PORT" \
-          --namespace=default \
+          --namespace=feedback-services\
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
           > secrets/backend-sealed-secret.yaml
 
 
-          kubectl create secret generic kafka-consumer-secret \
+          kubectl create secret generic kafka-consumer-sealed-secret \
           --from-literal=DATABASE_URL="$DATABASE_URL" \
-          --namespace=default \
-          --dry-run=client -o yaml \
-          | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          > secrets/kafka-consumer-sealed-secret.yaml
-
-          kubectl create secret generic ws-secret \
           --from-literal=DATABASE_URL="$DATABASE_URL" \
           --from-literal=Redis_URL="$REDIS_URL" \
           --from-literal=password="$REDIS_PASSWORD" \
           --from-literal=port="$REDIS_PORT" \
-          --namespace=default \
+          --docker-username="$KAFKA-USERNAME" \
+          --docker-password="$KAFKA-PASSWORD" \
+          --namespace=feedback-services\
+          --dry-run=client -o yaml \
+          | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
+          > secrets/kafka-consumer-sealed-secret.yaml
+
+          kubectl create secret generic ws-sealed-secret \
+          --from-literal=DATABASE_URL="$DATABASE_URL" \
+          --from-literal=Redis_URL="$REDIS_URL" \
+          --from-literal=password="$REDIS_PASSWORD" \
+          --from-literal=port="$REDIS_PORT" \
+          --docker-username="$KAFKA-USERNAME" \
+          --docker-password="$KAFKA-PASSWORD" \
+          --namespace=feedback-services \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
           > secrets/ws-sealed-secret.yaml
           EOF
 
           chmod +x scripts/create-secrets.sh
-
                 
       - name: Create and Seal Secrets
         env:
@@ -250,10 +265,14 @@ jobs:
           REDIS_URL: ${{ secrets.REDIS_URL }}
           REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
           REDIS_PORT: ${{ secrets.REDIS_PORT }}
+          username: ${{ secrets.KAFKA_USERNAME}}
+          password: ${{ secrets.KAFKA_PASSWORD}}
+
         run: |
           bash scripts/create-secrets.sh
-          cd ~/gitops/Helm/chart.prod
+          cd ~/gitops/Helm/chart.staging/services
           rm -rf pub-sealed-secrets.pem
+          mv secrets/kafka-user-sealed-secret.yaml ../kafka-cluster/secrets
           
 
       - name: Commit and Push Changes

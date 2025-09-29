@@ -1,10 +1,17 @@
 import express from 'express'
-
-import { Kafka } from 'kafkajs'
+import dotenv from 'dotenv'
+dotenv.config()
+import { Kafka,SASLOptions } from 'kafkajs'
 const app = express();
 const kafka = new Kafka({
-  clientId: 'chat',
- brokers: ['kafka1:9092', 'kafka2:9093','kafka3:9094']
+ clientId: 'feedback-client1',
+ brokers: ["feedback-cluster-kafka-bootstrap.kafka:9092"],
+ ssl: false,      
+  sasl: {
+    mechanism: 'plain',
+    username: process.env.username,
+    password: process.env.password
+  } as SASLOptions 
 })
 
 

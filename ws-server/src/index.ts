@@ -6,11 +6,17 @@ dotenv.config();
 import { WebSocketServer, WebSocket } from "ws";
 const wss = new WebSocketServer({ port: 8080 });
 
-import { Kafka } from "kafkajs";
+import { Kafka,SASLOptions  } from "kafkajs";
 
 const kafka = new Kafka({
   clientId: "chat-app",
-  brokers: ["kafka1:9092", "kafka2:9093", "kafka3:9094"],
+  brokers: ["feedback-cluster-kafka-bootstrap.kafka:9092"],
+  ssl: false,      
+  sasl: {
+    mechanism: 'plain',
+    username: process.env.username,
+    password: process.env.password
+  } as SASLOptions 
 });
 const producer = kafka.producer();
 
