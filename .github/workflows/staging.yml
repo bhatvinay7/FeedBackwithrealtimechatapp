@@ -191,8 +191,8 @@ jobs:
 
 
           kubectl create secret generic  kafka-user-sealed-secret \
-          --docker-username="$KAFKA-USERNAME" \
-          --docker-password="$KAFKA-PASSWORD" \
+          ----from-literal=username="$KAFKA-USERNAME" \
+          ----from-literal=password="$KAFKA-PASSWORD" \
           --namespace=kafka \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
@@ -229,8 +229,8 @@ jobs:
           --from-literal=Redis_URL="$REDIS_URL" \
           --from-literal=password="$REDIS_PASSWORD" \
           --from-literal=port="$REDIS_PORT" \
-          --docker-username="$KAFKA-USERNAME" \
-          --docker-password="$KAFKA-PASSWORD" \
+          --from-literal=username="$KAFKA-USERNAME" \
+          --from-literal=password="$KAFKA-PASSWORD" \
           --namespace=feedback-services\
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
@@ -241,8 +241,8 @@ jobs:
           --from-literal=Redis_URL="$REDIS_URL" \
           --from-literal=password="$REDIS_PASSWORD" \
           --from-literal=port="$REDIS_PORT" \
-          --docker-username="$KAFKA-USERNAME" \
-          --docker-password="$KAFKA-PASSWORD" \
+          --from-literal=username="$KAFKA-USERNAME" \
+          --from-literal=password="$KAFKA-PASSWORD" \
           --namespace=feedback-services \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
