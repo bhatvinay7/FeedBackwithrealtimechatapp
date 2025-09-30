@@ -175,7 +175,6 @@ jobs:
           set -e
           cd ~/gitops/Helm/chart.staging/services
 
-
           kubeseal --fetch-cert \
           --controller-name sealed-secrets \
           --controller-namespace sealed-secrets \
