@@ -22,7 +22,7 @@ const producer = kafka.producer();
 
 import { createClient } from "redis";
 const REDIS_URL = process.env.Redis_URL;
-const password = process.env.password;
+const password = process.env.redis_password;
 const port = process.env.port;
 const publisher = createClient({
   username: "default",

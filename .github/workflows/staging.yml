@@ -191,8 +191,8 @@ jobs:
 
 
           kubectl create secret generic  kafka-user-sealed-secret \
-          ----from-literal=username="$KAFKA-USERNAME" \
-          ----from-literal=password="$KAFKA-PASSWORD" \
+          --from-literal=username="$KAFKA-USERNAME" \
+          --from-literal=password="$KAFKA-PASSWORD" \
           --namespace=kafka \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
@@ -225,9 +225,8 @@ jobs:
 
           kubectl create secret generic kafka-consumer-sealed-secret \
           --from-literal=DATABASE_URL="$DATABASE_URL" \
-          --from-literal=DATABASE_URL="$DATABASE_URL" \
           --from-literal=Redis_URL="$REDIS_URL" \
-          --from-literal=password="$REDIS_PASSWORD" \
+          --from-literal=redis_password="$REDIS_PASSWORD" \
           --from-literal=port="$REDIS_PORT" \
           --from-literal=username="$KAFKA-USERNAME" \
           --from-literal=password="$KAFKA-PASSWORD" \
@@ -239,7 +238,7 @@ jobs:
           kubectl create secret generic ws-sealed-secret \
           --from-literal=DATABASE_URL="$DATABASE_URL" \
           --from-literal=Redis_URL="$REDIS_URL" \
-          --from-literal=password="$REDIS_PASSWORD" \
+          --from-literal=redis_password="$REDIS_PASSWORD" \
           --from-literal=port="$REDIS_PORT" \
           --from-literal=username="$KAFKA-USERNAME" \
           --from-literal=password="$KAFKA-PASSWORD" \
