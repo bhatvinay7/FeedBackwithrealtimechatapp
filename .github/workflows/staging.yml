@@ -137,11 +137,11 @@ jobs:
           export DOCKER_USERNAME=${{secrets.DOCKER_USERNAME}} 
           git checkout $GITOPS_BRANCH
 
-          yq  -i  -y ".services.frontend.image = \"${DOCKER_USERNAME}/reach-frontend:${GITHUB_SHA}\"" values.prod.yml
-          yq  -i  -y ".services.backend.image = \"${DOCKER_USERNAME}/reach-backend:${GITHUB_SHA}\"" values.prod.yml
-          yq  -i  -y ".services.\"ws-server\".image = \"${DOCKER_USERNAME}/ws-server:${GITHUB_SHA}\"" values.prod.yml
-          yq  -i  -y ".services.\"kafka_consumer1\".image = \"${DOCKER_USERNAME}/kafka_consumer1:${GITHUB_SHA}\"" values.prod.yml
-          yq  -i  -y ".services.\"kafka_consumer2\".image = \"${DOCKER_USERNAME}/kafka_consumer2:${GITHUB_SHA}\"" values.prod.yml
+          yq  -i  -y ".services.frontend.image = \"${DOCKER_USERNAME}/reach-frontend:${GITHUB_SHA}\"" values.staging.yml
+          yq  -i  -y ".services.backend.image = \"${DOCKER_USERNAME}/reach-backend:${GITHUB_SHA}\"" values.staging.yml
+          yq  -i  -y ".services.\"ws-server\".image = \"${DOCKER_USERNAME}/ws-server:${GITHUB_SHA}\"" values.staging.yml
+          yq  -i  -y ".services.\"kafka_consumer1\".image = \"${DOCKER_USERNAME}/kafka_consumer1:${GITHUB_SHA}\"" values.staging.yml
+          yq  -i  -y ".services.\"kafka_consumer2\".image = \"${DOCKER_USERNAME}/kafka_consumer2:${GITHUB_SHA}\"" values.staging.yml
 
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
