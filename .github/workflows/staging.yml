@@ -175,11 +175,17 @@ jobs:
           cat << 'EOF' > scripts/create-secrets.sh
           set -e
           cd ~/gitops/Helm/chart.staging/services
-
+          
           kubeseal --fetch-cert \
           --controller-name sealed-secrets \
           --controller-namespace sealed-secrets \
           > pub-sealed-secrets.pem
+           
+          kubectl get namespace feedback-services >/dev/null 2>&1 || \
+          kubectl create namespace feedback-services
+
+          kubectl get namespace kafka >/dev/null 2>&1 || \
+          kubectl create namespace kafka
 
           kubectl create secret docker-registry docker-sealed-secret \
           --docker-server=https://index.docker.io/v1/ \
