@@ -181,6 +181,7 @@ jobs:
           > pub-sealed-secrets.pem
 
           kubectl create secret docker-registry docker-sealed-secret \
+          --docker-server=docker.io \
           --docker-username="$DOCKER_USERNAME" \
           --docker-password="$DOCKER_PASSWORD" \
           --namespace=feedback-services \
