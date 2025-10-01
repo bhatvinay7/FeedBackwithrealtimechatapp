@@ -231,7 +231,7 @@ jobs:
           --from-literal=port="$REDIS_PORT" \
           --from-literal=username="$KAFKA-USERNAME" \
           --from-literal=password="$KAFKA-PASSWORD" \
-          --namespace=feedback-services \
+          --namespace=kafka \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
           > secrets/kafka-consumer-sealed-secret.yaml
