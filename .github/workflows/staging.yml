@@ -148,7 +148,7 @@ jobs:
           for dir in "${!services[@]}"; do
           cd "$dir"
           key=${services[$dir]}
-          yq -i -y ".services.image = \"${DOCKER_USERNAME}/${key}:${GITHUB_SHA}\"" values.staging.yml
+          yq -i -y "(.services[] | select(.name == "backend") | .image) = \"${DOCKER_USERNAME}/${key}:${GITHUB_SHA}\"" values.staging.yml
           cd ..
           done
 
