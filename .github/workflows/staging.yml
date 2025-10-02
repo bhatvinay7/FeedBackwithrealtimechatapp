@@ -184,7 +184,7 @@ jobs:
           cat << 'EOF' > scripts/create-secrets.sh
           set -e
           cd ~/gitops/Helm/chart.staging/services
-          mkdir -p secret
+          mkdir -p secrets
           kubeseal --fetch-cert \
           --controller-name sealed-secrets \
           --controller-namespace sealed-secrets \
