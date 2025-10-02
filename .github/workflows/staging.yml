@@ -184,7 +184,6 @@ jobs:
           cat << 'EOF' > scripts/create-secrets.sh
           set -e
           cd ~/gitops/Helm/chart.staging/services
-          mkdir -p secrets
           kubeseal --fetch-cert \
           --controller-name sealed-secrets \
           --controller-namespace sealed-secrets \
@@ -288,24 +287,7 @@ jobs:
           bash scripts/create-secrets.sh
           cd ~/gitops/Helm/chart.staging/services
           rm -rf pub-sealed-secrets.pem
-
-          cp secrets/kafka-user-sealed-secret.yaml ../kafka-cluster/secrets/kafka-user-sealed-secret.yaml
-          cp secrets/docker-sealed-secret.yaml ./reach-frontend/secrets/docker-sealed-secret.yaml
-          cp secrets/docker-sealed-secret.yaml ./reach-backend/secrets/docker-sealed-secret.yaml
-          cp secrets/docker-sealed-secret.yaml ./reach-ws-server/secrets/docker-sealed-secret.yaml
-          cp secrets/docker-sealed-secret.yaml ./reach-consumer1/secrets/docker-sealed-secret.yaml
-          cp secrets/docker-sealed-secret.yaml ./reach-consumer2/secrets/docker-sealed-secret.yaml
-
-          cp secrets/frontend-sealed-secret.yaml ./reach-frontend/secrets/frontend-sealed-secret.yaml
-          cp secrets/backend-sealed-secret.yaml ./reach-backend/secrets/backend-sealed-secret.yaml
-          cp secrets/ws-sealed-secret.yaml ./reach-ws-server/secrets/ws-sealed-secret.yaml
-          cp secrets/kafka-consumer-sealed-secret.yaml ./reach-consumer1/kafka-consumer-sealed-secret.yaml
-          cp secrets/kafka-consumer-sealed-secret.yaml ./reach-consumer2/kafka-consumer-sealed-secret.yaml
-
-          git rm -rf --ignore-unmatch secrets
-
           
-
       - name: Commit and Push Changes
         run: |
           export GITOPS_BRANCH=${{secrets.GITOPS_BRANCH}}
