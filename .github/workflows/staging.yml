@@ -302,7 +302,7 @@ jobs:
           cp secrets/kafka-consumer-sealed-secret.yaml ./reach-consumer1/kafka-consumer-sealed-secret.yaml
           cp secrets/kafka-consumer-sealed-secret.yaml ./reach-consumer2/kafka-consumer-sealed-secret.yaml
 
-          git rm -r --ignore-unmatch secrets
+          git rm -rf --ignore-unmatch secrets
 
           
 
