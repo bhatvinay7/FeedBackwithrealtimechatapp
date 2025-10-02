@@ -137,11 +137,20 @@ jobs:
           export DOCKER_USERNAME=${{secrets.DOCKER_USERNAME}} 
           git checkout $GITOPS_BRANCH
 
-          yq  -i  -y ".services.frontend.image = \"${DOCKER_USERNAME}/reach-frontend:${GITHUB_SHA}\"" values.staging.yml
-          yq  -i  -y ".services.backend.image = \"${DOCKER_USERNAME}/reach-backend:${GITHUB_SHA}\"" values.staging.yml
-          yq  -i  -y ".services.\"ws-server\".image = \"${DOCKER_USERNAME}/ws-server:${GITHUB_SHA}\"" values.staging.yml
-          yq  -i  -y ".services.\"kafka_consumer1\".image = \"${DOCKER_USERNAME}/kafka_consumer1:${GITHUB_SHA}\"" values.staging.yml
-          yq  -i  -y ".services.\"kafka_consumer2\".image = \"${DOCKER_USERNAME}/kafka_consumer2:${GITHUB_SHA}\"" values.staging.yml
+
+          declare -A services=(
+          ["reach-frontend"]="reach-frontend"
+          ["reach-backend"]="reach-backend"
+          ["reach-ws-server"]="reach-ws-server"
+          ["reach-consumer1"]="reach-consumer1"
+          ["reach-consumer2"]="reach-consumer2" )
+
+          for dir in "${!services[@]}"; do
+          cd "$dir"
+          key=${services[$dir]}
+          yq -i -y ".services.\"$key\".image = \"${DOCKER_USERNAME}/${key}:${GITHUB_SHA}\"" values.staging.yml
+          cd ..
+          done
 
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
@@ -175,7 +184,7 @@ jobs:
           cat << 'EOF' > scripts/create-secrets.sh
           set -e
           cd ~/gitops/Helm/chart.staging/services
-          
+          mkdir -p secret
           kubeseal --fetch-cert \
           --controller-name sealed-secrets \
           --controller-namespace sealed-secrets \
@@ -279,8 +288,21 @@ jobs:
           bash scripts/create-secrets.sh
           cd ~/gitops/Helm/chart.staging/services
           rm -rf pub-sealed-secrets.pem
-          mv secrets/kafka-user-sealed-secret.yaml ../kafka-cluster/secrets/kafka-user-sealed-secret.yaml
-          git rm --ignore-unmatch secrets/kafka-user-sealed-secret.yaml
+
+          cp secrets/kafka-user-sealed-secret.yaml ../kafka-cluster/secrets/kafka-user-sealed-secret.yaml
+          cp secrets/docker-sealed-secret.yaml ./reach-frontend/secrets/docker-sealed-secret.yaml
+          cp secrets/docker-sealed-secret.yaml ./reach-backend/secrets/docker-sealed-secret.yaml
+          cp secrets/docker-sealed-secret.yaml ./reach-ws-server/secrets/docker-sealed-secret.yaml
+          cp secrets/docker-sealed-secret.yaml ./reach-consumer1/secrets/docker-sealed-secret.yaml
+          cp secrets/docker-sealed-secret.yaml ./reach-consumer2/secrets/docker-sealed-secret.yaml
+
+          cp secrets/frontend-sealed-secret.yaml ./reach-frontend/secrets/frontend-sealed-secret.yaml
+          cp secrets/backend-sealed-secret.yaml ./reach-backend/secrets/backend-sealed-secret.yaml
+          cp secrets/ws-sealed-secret.yaml ./reach-ws-server/secrets/ws-sealed-secret.yaml
+          cp secrets/kafka-consumer-sealed-secret.yaml ./reach-consumer1/kafka-consumer-sealed-secret.yaml
+          cp secrets/kafka-consumer-sealed-secret.yaml ./reach-consumer2/kafka-consumer-sealed-secret.yaml
+
+          git rm -r --ignore-unmatch secrets
 
           
 
