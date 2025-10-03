@@ -308,6 +308,7 @@ jobs:
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
           > $SECRETS_DIR/ws-sealed-secret.yaml
+          EOF
 
           chmod +x scripts/create-secrets.sh
                 
