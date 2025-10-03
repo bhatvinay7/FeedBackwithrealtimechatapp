@@ -311,7 +311,7 @@ jobs:
           bash scripts/create-secrets.sh
           cd ~/gitops/Helm/chart.staging/services
           rm -rf pub-sealed-secrets.pem
-          mv secrets/kafka-user-sealed-secret.yaml ../kafka_cluster/secrets/kafka-user-sealed-secret.yaml
+          mv secrets/kafka-user-sealed-secret.yaml ../kafka-cluster/secrets/kafka-user-sealed-secret.yaml
           
       - name: Commit and Push Changes
         run: |
