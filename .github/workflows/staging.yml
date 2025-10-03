@@ -211,7 +211,7 @@ jobs:
           kubeseal --fetch-cert \
           --controller-name sealed-secrets \
           --controller-namespace sealed-secrets \
-          > $SECRETS_DIR/pub-sealed-secrets.pem
+          > pub-sealed-secrets.pem
 
           kubectl get namespace feedback-services >/dev/null 2>&1 || kubectl create namespace feedback-services
           kubectl get namespace kafka >/dev/null 2>&1 || kubectl create namespace kafka
@@ -238,7 +238,7 @@ jobs:
           --from-env-file=$FRONTEND_ENV \
           --namespace=feedback-services \
           --dry-run=client -o yaml \
-          | kubeseal --cert=$SECRETS_DIR/pub-sealed-secrets.pem --format=yaml \
+          | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
           > $SECRETS_DIR/frontend-sealed-secret.yaml
 
 
@@ -258,7 +258,7 @@ jobs:
           --from-env-file=$BACKEND_ENV \
           --namespace=feedback-services \
           --dry-run=client -o yaml \
-          | kubeseal --cert=$SECRETS_DIR/pub-sealed-secrets.pem --format=yaml \
+          | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
           > $SECRETS_DIR/backend-sealed-secret.yaml
 
 
@@ -272,7 +272,7 @@ jobs:
           --from-env-file=$KAFKA_ENV \
           --namespace=kafka \
           --dry-run=client -o yaml \
-          | kubeseal --cert=$SECRETS_DIR/pub-sealed-secrets.pem --format=yaml \
+          | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
           > ../kafka-cluster/$SECRETS_DIR/kafka-user-sealed-secret.yaml
 
           KAFKA_CONSUMER_ENV=$SECRETS_DIR/kafka-consumer.env
@@ -289,7 +289,7 @@ jobs:
           --from-env-file=$KAFKA_CONSUMER_ENV \
           --namespace=kafka \
           --dry-run=client -o yaml \
-          | kubeseal --cert=$SECRETS_DIR/pub-sealed-secrets.pem --format=yaml \
+          | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
           > $SECRETS_DIR/kafka-consumer-sealed-secret.yaml
 
           WS_ENV=$SECRETS_DIR/ws.env
@@ -306,7 +306,7 @@ jobs:
           --from-env-file=$WS_ENV \
           --namespace=feedback-services \
           --dry-run=client -o yaml \
-          | kubeseal --cert=$SECRETS_DIR/pub-sealed-secrets.pem --format=yaml \
+          | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
           > $SECRETS_DIR/ws-sealed-secret.yaml
 
           chmod +x scripts/create-secrets.sh
