@@ -202,7 +202,7 @@ jobs:
 
       - name : create scripts/create-secrets.sh
         run : |
-          mkdir -p secrets
+          mkdir -p scripts
           touch scripts/create-secrets.sh
           cat << 'EOF' > scripts/create-secrets.sh
           set -e
