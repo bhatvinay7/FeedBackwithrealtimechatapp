@@ -202,7 +202,7 @@ jobs:
 
       - name : create scripts/create-secrets.sh
         run : |
-          mkdir -p scripts
+          mkdir -p secrets
           touch scripts/create-secrets.sh
           cat << 'EOF' > scripts/create-secrets.sh
           set -e
@@ -254,7 +254,7 @@ jobs:
           port=$REDIS_PORT
           EOF
 
-          kubectl create secret generic backend-sealed-secret.yaml \
+          kubectl create secret generic backend-sealed-secret \
           --from-env-file=$BACKEND_ENV \
           --namespace=feedback-services \
           --dry-run=client -o yaml \
@@ -281,7 +281,7 @@ jobs:
           Redis_URL=$REDIS_URL
           redis_password=$REDIS_PASSWORD
           port=$REDIS_PORT
-          usernameE=$KAFKA_USERNAME
+          username=$KAFKA_USERNAME
           password=$KAFKA_PASSWORD
           EOF
 
