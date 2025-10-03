@@ -175,17 +175,17 @@ jobs:
       #   with:
       #    credentials_json: ${{ secrets.GCP_WIF_JSON }}
 
-      - name: Setup gcloud
-        uses: google-github-actions/setup-gcloud@v2
-        with:
-          project_id: ${{secrets.PROJECT_ID}}
+      # - name: Setup gcloud
+      #   uses: google-github-actions/setup-gcloud@v2
+      #   with:
+      #     project_id: ${{secrets.PROJECT_ID}}
 
-      - name: Get GKE credentials
-        run: |
-          export KUBERNETES_CLUSTER_REGION=${{secrets.ZONE}}
-          export CLUSTER_NAME=${{secrets.CLUSTER_NAME}}
-          export PROJECT_ID=${{secrets.PROJECT_ID}}
-          gcloud container clusters get-credentials $KUBERNETES_CLUSTER_NAME --zone $KUBERNETES_CLUSTER_REGION --project PROJECT_ID
+      # - name: Get GKE credentials
+      #   run: |
+      #     export KUBERNETES_CLUSTER_REGION=${{secrets.ZONE}}
+      #     export CLUSTER_NAME=${{secrets.CLUSTER_NAME}}
+      #     export PROJECT_ID=${{secrets.PROJECT_ID}}
+      #     gcloud container clusters get-credentials $KUBERNETES_CLUSTER_NAME --zone $KUBERNETES_CLUSTER_REGION --project PROJECT_ID
 
       - name : Setup  Seal secret --controller-name
         run: |
@@ -311,6 +311,7 @@ jobs:
           bash scripts/create-secrets.sh
           cd ~/gitops/Helm/chart.staging/services
           rm -rf pub-sealed-secrets.pem
+          mv secrets/kafka-user-sealed-secret.yaml ../../kafka_cluster/secrets/kafka-user-sealed-secret.yaml
           
       - name: Commit and Push Changes
         run: |
