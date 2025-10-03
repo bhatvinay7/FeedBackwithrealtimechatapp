@@ -239,7 +239,7 @@ jobs:
           --namespace=feedback-services \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          > $SECRETS_DIR/frontend-sealed-secret.yaml
+          > secrets/frontend-sealed-secret.yaml
 
 
           BACKEND_ENV=$SECRETS_DIR/backend.env
@@ -259,7 +259,7 @@ jobs:
           --namespace=feedback-services \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          > $SECRETS_DIR/backend-sealed-secret.yaml
+          > secrets/backend-sealed-secret.yaml
 
 
           KAFKA_ENV=$SECRETS_DIR/kafka.env
@@ -273,7 +273,7 @@ jobs:
           --namespace=kafka \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          > ../kafka-cluster/$SECRETS_DIR/kafka-user-sealed-secret.yaml
+          > ../kafka-cluster/secrets/kafka-user-sealed-secret.yaml
 
           KAFKA_CONSUMER_ENV=$SECRETS_DIR/kafka-consumer.env
           cat <<EOF > $KAFKA_CONSUMER_ENV
@@ -290,7 +290,7 @@ jobs:
           --namespace=kafka \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          > $SECRETS_DIR/kafka-consumer-sealed-secret.yaml
+          > secrets/kafka-consumer-sealed-secret.yaml
 
           WS_ENV=$SECRETS_DIR/ws.env
           cat <<EOF > $WS_ENV
@@ -307,7 +307,7 @@ jobs:
           --namespace=feedback-services \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          > $SECRETS_DIR/ws-sealed-secret.yaml
+          > secrets/ws-sealed-secret.yaml
           EOF
 
           chmod +x scripts/create-secrets.sh
