@@ -312,7 +312,7 @@ jobs:
           cd ~/gitops/Helm/chart.staging/services
           rm -rf pub-sealed-secrets.pem
           cp secrets/kafka-user-sealed-secret.yaml ../kafka-cluster/secrets/kafka-user-sealed-secret.yaml
-          rm -f secrets/kafka-user-sealed-secret.yaml 
+          rm secrets/kafka-user-sealed-secret.yaml 
           
       - name: Commit and Push Changes
         run: |
