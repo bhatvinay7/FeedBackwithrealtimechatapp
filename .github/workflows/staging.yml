@@ -114,9 +114,9 @@ jobs:
             sudo install -m 755 kubeseal /usr/local/bin/kubeseal
 
 
-      - name : Install CA for AWS eks
-        run: |
-          sudo apt-get update && sudo apt-get install -y ca-certificates
+      # - name : Install CA for AWS eks
+      #   run: |
+      #     sudo apt-get update && sudo apt-get install -y ca-certificates
 
       - name: Checkout GitOps repo
         run: |
@@ -152,18 +152,36 @@ jobs:
           cd ..
           done
 
-      - name: Configure AWS credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{secrets.ACTION_ROLE}}
-          aws-region: ${{secrets.AWS_REGION}}
+      # - name: Configure AWS credentials (OIDC)
+      #   uses: aws-actions/configure-aws-credentials@v4
+      #   with:
+      #     role-to-assume: ${{secrets.ACTION_ROLE}}
+      #     aws-region: ${{secrets.AWS_REGION}}
 
-      - name: Setup Kubeconfig
+      # - name: Setup Kubeconfig
+      #   run: |
+      #     export KUBERNETES_CLUSTER_REGION=${{secrets.KUBERNETES_CLUSTER_REGION}}
+      #     export KUBERNETES_CLUSTER_NAME=${{secrets.KUBERNETES_CLUSTER_NAME}}
+      #     aws eks update-kubeconfig --region $KUBERNETES_CLUSTER_REGION --name $KUBERNETES_CLUSTER_NAME
+      #     kubectl get nodes
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: "projects/${{secrets.PROJECT_NUMBER}}/locations/global/workloadIdentityPools/github-pool/providers/github-provider"
+          service_account: "feedbackwithrealtimechatapp@${{secrets.PROJECT_ID}}.iam.gserviceaccount.com"
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{secrets.PROJECT_ID}}
+
+      - name: Get GKE credentials
         run: |
-          export KUBERNETES_CLUSTER_REGION=${{secrets.KUBERNETES_CLUSTER_REGION}}
-          export KUBERNETES_CLUSTER_NAME=${{secrets.KUBERNETES_CLUSTER_NAME}}
-          aws eks update-kubeconfig --region $KUBERNETES_CLUSTER_REGION --name $KUBERNETES_CLUSTER_NAME
-          kubectl get nodes
+          export KUBERNETES_CLUSTER_REGION=${{secrets.ZONE}}
+          export CLUSTER_NAME=${{secrets.CLUSTER_NAME}}
+          export PROJECT_ID=${{secrets.PROJECT_ID}}
+          gcloud container clusters get-credentials $KUBERNETES_CLUSTER_NAME --zone $KUBERNETES_CLUSTER_REGION --project PROJECT_ID
+
       - name : Setup  Seal secret --controller-name
         run: |
           helm repo add bitnami https://charts.bitnami.com/bitnami
