@@ -263,6 +263,7 @@ jobs:
           > secrets/ws-sealed-secret.yaml
           EOF
 
+
           chmod +x scripts/create-secrets.sh
                 
       - name: Create and Seal Secrets
