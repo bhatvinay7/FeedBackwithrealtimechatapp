@@ -207,17 +207,15 @@ jobs:
           cat << 'EOF' > scripts/create-secrets.sh
           set -e
           cd ~/gitops/Helm/chart.staging/services
+
           kubeseal --fetch-cert \
           --controller-name sealed-secrets \
           --controller-namespace sealed-secrets \
-          > pub-sealed-secrets.pem
-           
-          kubectl get namespace feedback-services >/dev/null 2>&1 || \
-          kubectl create namespace feedback-services
+          > $SECRETS_DIR/pub-sealed-secrets.pem
 
-          kubectl get namespace kafka >/dev/null 2>&1 || \
-          kubectl create namespace kafka
-
+          kubectl get namespace feedback-services >/dev/null 2>&1 || kubectl create namespace feedback-services
+          kubectl get namespace kafka >/dev/null 2>&1 || kubectl create namespace kafka
+          
           kubectl create secret docker-registry docker-sealed-secret \
           --docker-server=https://index.docker.io/v1/ \
           --docker-username="$DOCKER_USERNAME" \
@@ -228,64 +226,88 @@ jobs:
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
           > secrets/docker-sealed-secret.yaml
 
-          kubectl create secret generic  kafka-user-sealed-secret \
-          --from-literal=username="$KAFKA-USERNAME" \
-          --from-literal=password="$KAFKA-PASSWORD" \
-          --namespace=kafka \
-          --dry-run=client -o yaml \
-          | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          > ../kafka-cluster/secrets/kafka-user-sealed-secret.yaml
-
-          kubectl create secret generic frontend-sealed-secret \
-          --from-literal=NEXT_PUBLIC_BACKEND_API_URL="$NEXT_PUBLIC_BACKEND_API_URL" \
-          --from-literal=secret_key="$SECRET_KEY" \
-          --from-literal=NEXT_PUBLIC_FRONTEND_API_URL="$NEXT_PUBLIC_FRONTEND_API_URL" \
-          --from-literal=NEXT_PUBLIC_WS_SERVER="$NEXT_PUBLIC_WS_SERVER" \
-          --namespace=feedback-services \
-          --dry-run=client -o yaml \
-          | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          > secrets/frontend-sealed-secret.yaml
-
-          kubectl create secret generic backend-sealed-secret \
-          --from-literal=GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" \
-          --from-literal=GOOGLE_CLIENT_SECRET="$GOOGLE_CLIENT_SECRET" \
-          --from-literal=NEXT_PUBLIC_FRONTEND_API_URL="$NEXT_PUBLIC_FRONTEND_API_URL" \
-          --from-literal=secret_key="$SECRET_KEY" \
-          --from-literal=DATABASE_URL="$DATABASE_URL" \
-          --from-literal=Redis_URL="$REDIS_URL" \
-          --from-literal=password="$REDIS_PASSWORD" \
-          --from-literal=port="$REDIS_PORT" \
-          --namespace=feedback-services \
-          --dry-run=client -o yaml \
-          | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          > secrets/backend-sealed-secret.yaml
-
-
-          kubectl create secret generic kafka-consumer-sealed-secret \
-          --from-literal=DATABASE_URL="$DATABASE_URL" \
-          --from-literal=Redis_URL="$REDIS_URL" \
-          --from-literal=redis_password="$REDIS_PASSWORD" \
-          --from-literal=port="$REDIS_PORT" \
-          --from-literal=username="$KAFKA-USERNAME" \
-          --from-literal=password="$KAFKA-PASSWORD" \
-          --namespace=kafka \
-          --dry-run=client -o yaml \
-          | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          > secrets/kafka-consumer-sealed-secret.yaml
-
-          kubectl create secret generic ws-sealed-secret \
-          --from-literal=DATABASE_URL="$DATABASE_URL" \
-          --from-literal=Redis_URL="$REDIS_URL" \
-          --from-literal=redis_password="$REDIS_PASSWORD" \
-          --from-literal=port="$REDIS_PORT" \
-          --from-literal=username="$KAFKA-USERNAME" \
-          --from-literal=password="$KAFKA-PASSWORD" \
-          --namespace=feedback-services \
-          --dry-run=client -o yaml \
-          | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          > secrets/ws-sealed-secret.yaml
+          FRONTEND_ENV=$SECRETS_DIR/frontend.env
+          cat <<EOF > $FRONTEND_ENV
+          NEXT_PUBLIC_BACKEND_API_URL=$NEXT_PUBLIC_BACKEND_API_URL
+          secret_key=$SECRET_KEY
+          NEXT_PUBLIC_FRONTEND_API_URL=$NEXT_PUBLIC_FRONTEND_API_URL
+          NEXT_PUBLIC_WS_SERVER=$NEXT_PUBLIC_WS_SERVER
           EOF
 
+          kubectl create secret generic frontend-sealed-secret \
+          --from-env-file=$FRONTEND_ENV \
+          --namespace=feedback-services \
+          --dry-run=client -o yaml \
+          | kubeseal --cert=$SECRETS_DIR/pub-sealed-secrets.pem --format=yaml \
+          > $SECRETS_DIR/frontend-sealed-secret.yaml
+
+
+          BACKEND_ENV=$SECRETS_DIR/backend.env
+          cat <<EOF > $BACKEND_ENV
+          GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
+          GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET
+          NEXT_PUBLIC_FRONTEND_API_URL=$NEXT_PUBLIC_FRONTEND_API_URL
+          secret_key=$SECRET_KEY
+          DATABASE_URL=$DATABASE_URL
+          Redis_URL=$REDIS_URL
+          redis_password=$REDIS_PASSWORD
+          port=$REDIS_PORT
+          EOF
+
+          kubectl create secret generic backend-sealed-secret.yaml \
+          --from-env-file=$BACKEND_ENV \
+          --namespace=feedback-services \
+          --dry-run=client -o yaml \
+          | kubeseal --cert=$SECRETS_DIR/pub-sealed-secrets.pem --format=yaml \
+          > $SECRETS_DIR/backend-sealed-secret.yaml
+
+
+          KAFKA_ENV=$SECRETS_DIR/kafka.env
+          cat <<EOF > $KAFKA_ENV
+          username=$KAFKA_USERNAME
+          password=$KAFKA_PASSWORD
+          EOF
+
+          kubectl create secret generic kafka-user-sealed-secret \
+          --from-env-file=$KAFKA_ENV \
+          --namespace=kafka \
+          --dry-run=client -o yaml \
+          | kubeseal --cert=$SECRETS_DIR/pub-sealed-secrets.pem --format=yaml \
+          > ../kafka-cluster/$SECRETS_DIR/kafka-user-sealed-secret.yaml
+
+          KAFKA_CONSUMER_ENV=$SECRETS_DIR/kafka-consumer.env
+          cat <<EOF > $KAFKA_CONSUMER_ENV
+          DATABASE_URL=$DATABASE_URL
+          Redis_URL=$REDIS_URL
+          redis_password=$REDIS_PASSWORD
+          port=$REDIS_PORT
+          usernameE=$KAFKA_USERNAME
+          password=$KAFKA_PASSWORD
+          EOF
+
+          kubectl create secret generic kafka-consumer-sealed-secret \
+          --from-env-file=$KAFKA_CONSUMER_ENV \
+          --namespace=kafka \
+          --dry-run=client -o yaml \
+          | kubeseal --cert=$SECRETS_DIR/pub-sealed-secrets.pem --format=yaml \
+          > $SECRETS_DIR/kafka-consumer-sealed-secret.yaml
+
+          WS_ENV=$SECRETS_DIR/ws.env
+          cat <<EOF > $WS_ENV
+          DATABASE_URL=$DATABASE_URL
+          Redis_URL=$REDIS_URL
+          redis_password=$REDIS_PASSWORD
+          port=$REDIS_PORT
+          username=$KAFKA_USERNAME
+          password=$KAFKA_PASSWORD
+          EOF
+
+          kubectl create secret generic ws-sealed-secret \
+          --from-env-file=$WS_ENV \
+          --namespace=feedback-services \
+          --dry-run=client -o yaml \
+          | kubeseal --cert=$SECRETS_DIR/pub-sealed-secrets.pem --format=yaml \
+          > $SECRETS_DIR/ws-sealed-secret.yaml
 
           chmod +x scripts/create-secrets.sh
                 
@@ -305,6 +327,7 @@ jobs:
           REDIS_PORT: ${{ secrets.REDIS_PORT }}
           username: ${{ secrets.KAFKA_USERNAME}}
           password: ${{ secrets.KAFKA_PASSWORD}}
+          SECRETS_DIR: secrets
           email: ${{ secrets.USER_EMAIL}}
 
         run: |
