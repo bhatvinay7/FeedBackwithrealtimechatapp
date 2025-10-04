@@ -202,11 +202,12 @@ jobs:
 
       - name : create scripts/create-secrets.sh
         run : |
-          cd ~/gitops/Helm/chart.staging/services
           mkdir -p scripts
           touch scripts/create-secrets.sh
           cat << 'EOF' > scripts/create-secrets.sh
           set -e
+
+          cd ~/gitops/Helm/chart.staging/services
 
           kubeseal --fetch-cert \
           --controller-name sealed-secrets \
@@ -234,78 +235,78 @@ jobs:
           NEXT_PUBLIC_WS_SERVER=$NEXT_PUBLIC_WS_SERVER
           EOF
 
-          kubectl create secret generic frontend-sealed-secret \
-          --from-env-file=$FRONTEND_ENV \
-          --namespace=feedback-services \
-          --dry-run=client -o yaml \
-          | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          > secrets/frontend-sealed-secret.yaml
+          # kubectl create secret generic frontend-sealed-secret \
+          # --from-env-file=$FRONTEND_ENV \
+          # --namespace=feedback-services \
+          # --dry-run=client -o yaml \
+          # | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
+          # > secrets/frontend-sealed-secret.yaml
 
-          BACKEND_ENV=backend.env
-          cat <<EOF > $BACKEND_ENV
-          GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
-          GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET
-          NEXT_PUBLIC_FRONTEND_API_URL=$NEXT_PUBLIC_FRONTEND_API_URL
-          secret_key=$SECRET_KEY
-          DATABASE_URL=$DATABASE_URL
-          Redis_URL=$REDIS_URL
-          redis_password=$REDIS_PASSWORD
-          port=$REDIS_PORT
-          EOF
+          # BACKEND_ENV=backend.env
+          # cat <<EOF > $BACKEND_ENV
+          # GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
+          # GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET
+          # NEXT_PUBLIC_FRONTEND_API_URL=$NEXT_PUBLIC_FRONTEND_API_URL
+          # secret_key=$SECRET_KEY
+          # DATABASE_URL=$DATABASE_URL
+          # Redis_URL=$REDIS_URL
+          # redis_password=$REDIS_PASSWORD
+          # port=$REDIS_PORT
+          # EOF
 
-          kubectl create secret generic backend-sealed-secret \
-          --from-env-file=$BACKEND_ENV \
-          --namespace=feedback-services \
-          --dry-run=client -o yaml \
-          | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          > secrets/backend-sealed-secret.yaml
+          # kubectl create secret generic backend-sealed-secret \
+          # --from-env-file=$BACKEND_ENV \
+          # --namespace=feedback-services \
+          # --dry-run=client -o yaml \
+          # | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
+          # > secrets/backend-sealed-secret.yaml
 
-          KAFKA_ENV=kafka.env
-          cat <<EOF > $KAFKA_ENV
-          username=$KAFKA_USERNAME
-          password=$KAFKA_PASSWORD
-          EOF
+          # KAFKA_ENV=kafka.env
+          # cat <<EOF > $KAFKA_ENV
+          # username=$KAFKA_USERNAME
+          # password=$KAFKA_PASSWORD
+          # EOF
 
-          kubectl create secret generic kafka-user-sealed-secret \
-          --from-env-file=$KAFKA_ENV \
-          --namespace=kafka \
-          --dry-run=client -o yaml \
-          | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          > ../kafka-cluster/secrets/kafka-user-sealed-secret.yaml
+          # kubectl create secret generic kafka-user-sealed-secret \
+          # --from-env-file=$KAFKA_ENV \
+          # --namespace=kafka \
+          # --dry-run=client -o yaml \
+          # | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
+          # > ../kafka-cluster/secrets/kafka-user-sealed-secret.yaml
 
-          KAFKA_CONSUMER_ENV=kafka-consumer.env
-          cat <<EOF > $KAFKA_CONSUMER_ENV
-          DATABASE_URL=$DATABASE_URL
-          Redis_URL=$REDIS_URL
-          redis_password=$REDIS_PASSWORD
-          port=$REDIS_PORT
-          username=$KAFKA_USERNAME
-          password=$KAFKA_PASSWORD
-          EOF
+          # KAFKA_CONSUMER_ENV=kafka-consumer.env
+          # cat <<EOF > $KAFKA_CONSUMER_ENV
+          # DATABASE_URL=$DATABASE_URL
+          # Redis_URL=$REDIS_URL
+          # redis_password=$REDIS_PASSWORD
+          # port=$REDIS_PORT
+          # username=$KAFKA_USERNAME
+          # password=$KAFKA_PASSWORD
+          # EOF
 
-          kubectl create secret generic kafka-consumer-sealed-secret \
-          --from-env-file=$KAFKA_CONSUMER_ENV \
-          --namespace=kafka \
-          --dry-run=client -o yaml \
-          | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          > secrets/kafka-consumer-sealed-secret.yaml
+          # kubectl create secret generic kafka-consumer-sealed-secret \
+          # --from-env-file=$KAFKA_CONSUMER_ENV \
+          # --namespace=kafka \
+          # --dry-run=client -o yaml \
+          # | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
+          # > secrets/kafka-consumer-sealed-secret.yaml
 
-          WS_ENV=ws.env
-          cat <<EOF > $WS_ENV
-          DATABASE_URL=$DATABASE_URL
-          Redis_URL=$REDIS_URL
-          redis_password=$REDIS_PASSWORD
-          port=$REDIS_PORT
-          username=$KAFKA_USERNAME
-          password=$KAFKA_PASSWORD
-          EOF
+          # WS_ENV=ws.env
+          # cat <<EOF > $WS_ENV
+          # DATABASE_URL=$DATABASE_URL
+          # Redis_URL=$REDIS_URL
+          # redis_password=$REDIS_PASSWORD
+          # port=$REDIS_PORT
+          # username=$KAFKA_USERNAME
+          # password=$KAFKA_PASSWORD
+          # EOF
 
-          kubectl create secret generic ws-sealed-secret \
-          --from-env-file=$WS_ENV \
-          --namespace=feedback-services \
-          --dry-run=client -o yaml \
-          | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          > secrets/ws-sealed-secret.yaml
+          # kubectl create secret generic ws-sealed-secret \
+          # --from-env-file=$WS_ENV \
+          # --namespace=feedback-services \
+          # --dry-run=client -o yaml \
+          # | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
+          # > secrets/ws-sealed-secret.yaml
 
           EOF
           chmod +x scripts/create-secrets.sh
@@ -330,10 +331,9 @@ jobs:
           email: ${{ secrets.USER_EMAIL}}
 
         run: |
-          cd ~/gitops/Helm/chart.staging/services
           bash scripts/create-secrets.sh
+          cd ~/gitops/Helm/chart.staging/services
           rm -rf pub-sealed-secrets.pem
-          rm -rf scripts
           
       - name: Commit and Push Changes
         run: |
