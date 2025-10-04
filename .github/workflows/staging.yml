@@ -202,19 +202,11 @@ jobs:
 
       - name : create scripts/create-secrets.sh
         run : |
+          cd ~/gitops/Helm/chart.staging/services
           mkdir -p scripts
           touch scripts/create-secrets.sh
           cat << 'EOF' > scripts/create-secrets.sh
           set -e
-
-          cd ~/gitops/Helm/chart.staging/services || { 
-          echo "ERROR: Cannot cd to ~/gitops/Helm/chart.staging/services"
-          echo "Current directory: $(pwd)"
-          exit 1
-           }
-
-
-          echo "Current directory: $(pwd)"
 
           kubeseal --fetch-cert \
           --controller-name sealed-secrets \
@@ -338,9 +330,10 @@ jobs:
           email: ${{ secrets.USER_EMAIL}}
 
         run: |
-          bash scripts/create-secrets.sh
           cd ~/gitops/Helm/chart.staging/services
+          bash scripts/create-secrets.sh
           rm -rf pub-sealed-secrets.pem
+          rm -rf scripts
           
       - name: Commit and Push Changes
         run: |
