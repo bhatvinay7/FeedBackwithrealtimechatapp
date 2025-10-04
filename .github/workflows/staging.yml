@@ -204,7 +204,7 @@ jobs:
         run : |
           mkdir -p scripts
           touch scripts/create-secrets.sh
-          cat << 'EOF' > scripts/create-secrets.sh
+          cat <<'EOF'> scripts/create-secrets.sh
           set -e
 
           cd ~/gitops/Helm/chart.staging/services
@@ -307,7 +307,6 @@ jobs:
           # --dry-run=client -o yaml \
           # | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
           # > secrets/ws-sealed-secret.yaml
-
           EOF
           chmod +x scripts/create-secrets.sh
 
