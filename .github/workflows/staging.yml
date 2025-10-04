@@ -231,7 +231,7 @@ jobs:
           EOFON
 
           kubectl create secret generic frontend-sealed-secret \
-          --from-env-file=$FRONTEND_ENV \
+          --from-env-file=.env=$FRONTEND_ENV \
           --namespace=feedback-services \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
@@ -250,7 +250,7 @@ jobs:
           EOFBACK
 
           kubectl create secret generic backend-sealed-secret \
-          --from-env-file=$BACKEND_ENV \
+          --from-env-file=.env=$BACKEND_ENV \
           --namespace=feedback-services \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
@@ -263,7 +263,7 @@ jobs:
           EOFKAF
 
           kubectl create secret generic kafka-user-sealed-secret \
-          --from-env-file=$KAFKA_ENV \
+          --from-env-file=.env=$KAFKA_ENV \
           --namespace=kafka \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
@@ -280,7 +280,7 @@ jobs:
           EOFCON
 
           kubectl create secret generic kafka-consumer-sealed-secret \
-          --from-env-file=$KAFKA_CONSUMER_ENV \
+          --from-env-file=.env=$KAFKA_CONSUMER_ENV \
           --namespace=kafka \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
@@ -297,7 +297,7 @@ jobs:
           EOFWS
 
           kubectl create secret generic ws-sealed-secret \
-          --from-env-file=$WS_ENV \
+          --from-env-file=.env=$WS_ENV \
           --namespace=feedback-services \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
