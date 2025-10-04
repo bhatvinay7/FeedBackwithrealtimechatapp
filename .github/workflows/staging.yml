@@ -231,13 +231,13 @@ jobs:
           EOFON
 
           kubectl create secret generic frontend-sealed-secret \
-          --from-env-file=.env=frontend.env \
+          --from-literal=combined_env="$(cat frontend.env)" \
           --namespace=feedback-services \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
           > secrets/frontend-sealed-secret.yaml
 
-        
+
           cat <<'EOFBACK' >  backend.env
           GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
           GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET
@@ -250,13 +250,13 @@ jobs:
           EOFBACK
 
           kubectl create secret generic backend-sealed-secret \
-          --from-env-file=.env=backend.env \
+          --from-literal=combined_env="$(cat backend.env)" \
           --namespace=feedback-services \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
           >  secrets/backend-sealed-secret.yaml
 
-          
+
           cat <<'EOFKAF' > kafka.env
           username=$KAFKA_USERNAME
           password=$KAFKA_PASSWORD
@@ -269,7 +269,7 @@ jobs:
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
           >  ../kafka-cluster/secrets/kafka-user-sealed-secret.yaml
 
-      
+
           cat <<EOFCON> kafka-consumer.env
           DATABASE_URL=$DATABASE_URL
           Redis_URL=$REDIS_URL
@@ -280,13 +280,13 @@ jobs:
           EOFCON
 
           kubectl create secret generic kafka-consumer-sealed-secret \
-          --from-env-file=.env=kafka-consumer.env \
+          --from-literal=combined_env="$(cat kafka-consumer.env)" \
           --namespace=kafka \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
           >  secrets/kafka-consumer-sealed-secret.yaml
 
-          
+
           cat <<'EOFWS' > ws.env
           DATABASE_URL=$DATABASE_URL
           Redis_URL=$REDIS_URL
@@ -297,7 +297,7 @@ jobs:
           EOFWS
 
           kubectl create secret generic ws-sealed-secret \
-          --from-env-file=.env=ws.env \
+          --from-literal=combined_env="$(cat ws.env)" \
           --namespace=feedback-services \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
