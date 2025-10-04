@@ -201,9 +201,9 @@ jobs:
           mkdir -p scripts
           touch scripts/create-secrets.sh
           cat <<'EOF'> scripts/create-secrets.sh
-          (
+          
           set -e
-          root = "Helm/chart.staging/services" 
+          root ="Helm/chart.staging/services" 
           kubeseal --fetch-cert \
           --controller-name sealed-secrets \
           --controller-namespace sealed-secrets \
@@ -216,7 +216,7 @@ jobs:
           --docker-server=https://index.docker.io/v1/ \
           --docker-username="$DOCKER_USERNAME" \
           --docker-password="$DOCKER_PASSWORD" \
-          --docker-email="$USER_EMAIL" \
+          --docker-email="$email" \
           --namespace=feedback-services \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
@@ -302,7 +302,6 @@ jobs:
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
           >  "$root/secrets/ws-sealed-secret.yaml"
-          )
           EOF
           chmod +x scripts/create-secrets.sh
 
