@@ -201,8 +201,8 @@ jobs:
           mkdir -p scripts
           touch scripts/create-secrets.sh
           cat <<'EOF'> scripts/create-secrets.sh
-          set -e
           (
+          set -e
 
           cd "$HOME/gitops/Helm/chart.staging/services"
           kubeseal --fetch-cert \
