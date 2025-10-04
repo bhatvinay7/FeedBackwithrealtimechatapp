@@ -207,7 +207,14 @@ jobs:
           cat << 'EOF' > scripts/create-secrets.sh
           set -e
 
-          cd ~/gitops/Helm/chart.staging/services
+          cd ~/gitops/Helm/chart.staging/services || { 
+          echo "ERROR: Cannot cd to ~/gitops/Helm/chart.staging/services"
+          echo "Current directory: $(pwd)"
+          exit 1
+           }
+
+
+          echo "Current directory: $(pwd)"
 
           kubeseal --fetch-cert \
           --controller-name sealed-secrets \
@@ -308,8 +315,8 @@ jobs:
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
           > secrets/ws-sealed-secret.yaml
 
-          chmod +x scripts/create-secrets.sh
           EOF
+          chmod +x scripts/create-secrets.sh
 
                 
       - name: Create and Seal Secrets
