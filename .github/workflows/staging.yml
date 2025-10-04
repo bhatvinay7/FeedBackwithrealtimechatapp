@@ -1,15 +1,14 @@
-name:
-    reach build
+name: reach build
 on:
   push:
     branches:
       - dev
   pull_request:
     branches:
-      - dev   
+      - dev
 permissions:
-    id-token: write
-    contents: read    
+  id-token: write
+  contents: read
 jobs:
   build-and-push:
     environment: staging
@@ -24,7 +23,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}    
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build & Push kafka_consumer_1
         uses: docker/build-push-action@v5
@@ -32,7 +31,7 @@ jobs:
           context: .
           file: ./kafka_consumer_1/Dockerfile.staging
           build-args: |
-                DATABASE_URL=${{secrets.DATABASE_URL}}      
+            DATABASE_URL=${{secrets.DATABASE_URL}}
           push: true
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/kafka_consumer1:${{ env.COMMIT_SHA }}
@@ -44,7 +43,7 @@ jobs:
           context: .
           file: ./kafka_consumer_2/Dockerfile.staging
           build-args: |
-                DATABASE_URL=${{secrets.DATABASE_URL}}      
+            DATABASE_URL=${{secrets.DATABASE_URL}}
           push: true
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/kafka_consumer2:${{ env.COMMIT_SHA }}
@@ -56,11 +55,11 @@ jobs:
           context: .
           file: ./ws-server/Dockerfile.staging
           build-args: |
-                DATABASE_URL=${{secrets.DATABASE_URL}}  
+            DATABASE_URL=${{secrets.DATABASE_URL}}
           push: true
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/reach-ws-server:${{ env.COMMIT_SHA }}
-            ${{ secrets.DOCKER_USERNAME }}/reach-ws-server:latest    
+            ${{ secrets.DOCKER_USERNAME }}/reach-ws-server:latest
 
       - name: Build & push reach_backend
         uses: docker/build-push-action@v5
@@ -70,31 +69,30 @@ jobs:
           push: true
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/reach-backend:${{ env.COMMIT_SHA }}
-            ${{ secrets.DOCKER_USERNAME }}/reach-backend:latest    
-      
+            ${{ secrets.DOCKER_USERNAME }}/reach-backend:latest
+
       - name: Build & push reach
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./reach-frontend/Dockerfile.staging
           build-args: |
-                NEXT_PUBLIC_BACKEND_API_URL=${{secrets.NEXT_PUBLIC_BACKEND_API_URL}}
-                NEXT_PUBLIC_FRONTEND_API_URL=${{secrets.NEXT_PUBLIC_FRONTEND_API_URL}}
-                NEXT_PUBLIC_WS_SERVER=${{secrets.NEXT_PUBLIC_WS_SERVER}}
-                
-                DATABASE_URL=${{secrets.DATABASE_URL}}   
+            NEXT_PUBLIC_BACKEND_API_URL=${{secrets.NEXT_PUBLIC_BACKEND_API_URL}}
+            NEXT_PUBLIC_FRONTEND_API_URL=${{secrets.NEXT_PUBLIC_FRONTEND_API_URL}}
+            NEXT_PUBLIC_WS_SERVER=${{secrets.NEXT_PUBLIC_WS_SERVER}}
+
+            DATABASE_URL=${{secrets.DATABASE_URL}}
           push: true
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/reach-frontend:${{ env.COMMIT_SHA }}
-            ${{ secrets.DOCKER_USERNAME }}/reach-frontend:latest    
+            ${{ secrets.DOCKER_USERNAME }}/reach-frontend:latest
 
-      
-  Deploy:  
+  Deploy:
     runs-on: ubuntu-latest
     environment: staging
     needs: build-and-push
     env:
-        COMMIT_SHA: ${{ github.sha }}
+      COMMIT_SHA: ${{ github.sha }}
 
     steps:
       - name: Checkout code
@@ -108,11 +106,10 @@ jobs:
 
       - name: Install kubeseal
         run: |
-            KUBESEAL_VERSION="v0.32.2"
-            curl -OL "https://github.com/bitnami-labs/sealed-secrets/releases/download/${KUBESEAL_VERSION}/kubeseal-0.32.2-linux-amd64.tar.gz"
-            tar -xvzf kubeseal-0.32.2-linux-amd64.tar.gz kubeseal
-            sudo install -m 755 kubeseal /usr/local/bin/kubeseal
-
+          KUBESEAL_VERSION="v0.32.2"
+          curl -OL "https://github.com/bitnami-labs/sealed-secrets/releases/download/${KUBESEAL_VERSION}/kubeseal-0.32.2-linux-amd64.tar.gz"
+          tar -xvzf kubeseal-0.32.2-linux-amd64.tar.gz kubeseal
+          sudo install -m 755 kubeseal /usr/local/bin/kubeseal
 
       # - name : Install CA for AWS eks
       #   run: |
@@ -125,16 +122,15 @@ jobs:
           export TOKEN=${{secrets.TOKEN}}
           export DOCKER_USERNAME=${{secrets.DOCKER_USERNAME}}
           mkdir -p ~/gitops
-          
+
           sudo apt-get update && sudo apt-get install -y git yq
           git clone --branch $GITOPS_BRANCH https://$TOKEN@github.com/$DOCKER_USERNAME/$GITOPS_REPO.git  ~/gitops
-          
-    
+
       - name: Update YAML images
         run: |
           cd ~/gitops/Helm/chart.staging/services
           export GITOPS_BRANCH=${{secrets.GITOPS_BRANCH}}
-          export DOCKER_USERNAME=${{secrets.DOCKER_USERNAME}} 
+          export DOCKER_USERNAME=${{secrets.DOCKER_USERNAME}}
           git checkout $GITOPS_BRANCH
 
 
@@ -187,11 +183,11 @@ jobs:
       #     export PROJECT_ID=${{secrets.PROJECT_ID}}
       #     gcloud container clusters get-credentials $KUBERNETES_CLUSTER_NAME --zone $KUBERNETES_CLUSTER_REGION --project PROJECT_ID
 
-      - name : Setup  Seal secret --controller-name
+      - name: Setup  Seal secret --controller-name
         run: |
           helm repo add bitnami https://charts.bitnami.com/bitnami
           helm repo  update
-     
+
           if helm status sealed-secrets -n sealed-secrets >/dev/null 2>&1; then
           echo "Sealed Secrets already installed. Upgrading..."
           helm upgrade sealed-secrets bitnami/sealed-secrets -n sealed-secrets
@@ -200,8 +196,8 @@ jobs:
           helm install sealed-secrets bitnami/sealed-secrets --namespace sealed-secrets --create-namespace
           fi
 
-      - name : create scripts/create-secrets.sh
-        run : |
+      - name: create scripts/create-secrets.sh
+        run: |
           mkdir -p scripts
           touch scripts/create-secrets.sh
           cat <<'EOF'> scripts/create-secrets.sh
@@ -216,7 +212,7 @@ jobs:
 
           kubectl get namespace feedback-services >/dev/null 2>&1 || kubectl create namespace feedback-services
           kubectl get namespace kafka >/dev/null 2>&1 || kubectl create namespace kafka
-          
+
           kubectl create secret docker-registry docker-sealed-secret \
           --docker-server=https://index.docker.io/v1/ \
           --docker-username="$DOCKER_USERNAME" \
@@ -235,82 +231,82 @@ jobs:
           NEXT_PUBLIC_WS_SERVER=$NEXT_PUBLIC_WS_SERVER
           EOF
 
-          # kubectl create secret generic frontend-sealed-secret \
-          # --from-env-file=$FRONTEND_ENV \
-          # --namespace=feedback-services \
-          # --dry-run=client -o yaml \
-          # | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          # > secrets/frontend-sealed-secret.yaml
+          kubectl create secret generic frontend-sealed-secret \
+          --from-env-file=$FRONTEND_ENV \
+          --namespace=feedback-services \
+          --dry-run=client -o yaml \
+          | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
+          > secrets/frontend-sealed-secret.yaml
 
-          # BACKEND_ENV=backend.env
-          # cat <<EOF > $BACKEND_ENV
-          # GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
-          # GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET
-          # NEXT_PUBLIC_FRONTEND_API_URL=$NEXT_PUBLIC_FRONTEND_API_URL
-          # secret_key=$SECRET_KEY
-          # DATABASE_URL=$DATABASE_URL
-          # Redis_URL=$REDIS_URL
-          # redis_password=$REDIS_PASSWORD
-          # port=$REDIS_PORT
-          # EOF
+          BACKEND_ENV=backend.env
+          cat <<EOF > $BACKEND_ENV
+          GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
+          GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET
+          NEXT_PUBLIC_FRONTEND_API_URL=$NEXT_PUBLIC_FRONTEND_API_URL
+          secret_key=$SECRET_KEY
+          DATABASE_URL=$DATABASE_URL
+          Redis_URL=$REDIS_URL
+          redis_password=$REDIS_PASSWORD
+          port=$REDIS_PORT
+          EOF
 
-          # kubectl create secret generic backend-sealed-secret \
-          # --from-env-file=$BACKEND_ENV \
-          # --namespace=feedback-services \
-          # --dry-run=client -o yaml \
-          # | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          # > secrets/backend-sealed-secret.yaml
+          kubectl create secret generic backend-sealed-secret \
+          --from-env-file=$BACKEND_ENV \
+          --namespace=feedback-services \
+          --dry-run=client -o yaml \
+          | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
+          > secrets/backend-sealed-secret.yaml
 
-          # KAFKA_ENV=kafka.env
-          # cat <<EOF > $KAFKA_ENV
-          # username=$KAFKA_USERNAME
-          # password=$KAFKA_PASSWORD
-          # EOF
+          KAFKA_ENV=kafka.env
+          cat <<EOF > $KAFKA_ENV
+          username=$KAFKA_USERNAME
+          password=$KAFKA_PASSWORD
+          EOF
 
-          # kubectl create secret generic kafka-user-sealed-secret \
-          # --from-env-file=$KAFKA_ENV \
-          # --namespace=kafka \
-          # --dry-run=client -o yaml \
-          # | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          # > ../kafka-cluster/secrets/kafka-user-sealed-secret.yaml
+          kubectl create secret generic kafka-user-sealed-secret \
+          --from-env-file=$KAFKA_ENV \
+          --namespace=kafka \
+          --dry-run=client -o yaml \
+          | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
+          > ../kafka-cluster/secrets/kafka-user-sealed-secret.yaml
 
-          # KAFKA_CONSUMER_ENV=kafka-consumer.env
-          # cat <<EOF > $KAFKA_CONSUMER_ENV
-          # DATABASE_URL=$DATABASE_URL
-          # Redis_URL=$REDIS_URL
-          # redis_password=$REDIS_PASSWORD
-          # port=$REDIS_PORT
-          # username=$KAFKA_USERNAME
-          # password=$KAFKA_PASSWORD
-          # EOF
+          KAFKA_CONSUMER_ENV=kafka-consumer.env
+          cat <<EOF > $KAFKA_CONSUMER_ENV
+          DATABASE_URL=$DATABASE_URL
+          Redis_URL=$REDIS_URL
+          redis_password=$REDIS_PASSWORD
+          port=$REDIS_PORT
+          username=$KAFKA_USERNAME
+          password=$KAFKA_PASSWORD
+          EOF
 
-          # kubectl create secret generic kafka-consumer-sealed-secret \
-          # --from-env-file=$KAFKA_CONSUMER_ENV \
-          # --namespace=kafka \
-          # --dry-run=client -o yaml \
-          # | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          # > secrets/kafka-consumer-sealed-secret.yaml
+          kubectl create secret generic kafka-consumer-sealed-secret \
+          --from-env-file=$KAFKA_CONSUMER_ENV \
+          --namespace=kafka \
+          --dry-run=client -o yaml \
+          | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
+          > secrets/kafka-consumer-sealed-secret.yaml
 
-          # WS_ENV=ws.env
-          # cat <<EOF > $WS_ENV
-          # DATABASE_URL=$DATABASE_URL
-          # Redis_URL=$REDIS_URL
-          # redis_password=$REDIS_PASSWORD
-          # port=$REDIS_PORT
-          # username=$KAFKA_USERNAME
-          # password=$KAFKA_PASSWORD
-          # EOF
+          WS_ENV=ws.env
+          cat <<EOF > $WS_ENV
+          DATABASE_URL=$DATABASE_URL
+          Redis_URL=$REDIS_URL
+          redis_password=$REDIS_PASSWORD
+          port=$REDIS_PORT
+          username=$KAFKA_USERNAME
+          password=$KAFKA_PASSWORD
+          EOF
 
-          # kubectl create secret generic ws-sealed-secret \
-          # --from-env-file=$WS_ENV \
-          # --namespace=feedback-services \
-          # --dry-run=client -o yaml \
-          # | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          # > secrets/ws-sealed-secret.yaml
+          kubectl create secret generic ws-sealed-secret \
+          --from-env-file=$WS_ENV \
+          --namespace=feedback-services \
+          --dry-run=client -o yaml \
+          | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
+          > secrets/ws-sealed-secret.yaml
+
           EOF
           chmod +x scripts/create-secrets.sh
 
-                
       - name: Create and Seal Secrets
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -333,7 +329,7 @@ jobs:
           bash scripts/create-secrets.sh
           cd ~/gitops/Helm/chart.staging/services
           rm -rf pub-sealed-secrets.pem
-          
+
       - name: Commit and Push Changes
         run: |
           export GITOPS_BRANCH=${{secrets.GITOPS_BRANCH}}
@@ -354,11 +350,3 @@ jobs:
           git push https://x-access-token:$TOKEN@github.com/$DOCKER_USERNAME/$GITOPS_REPO.git $GITOPS_BRANCH
 
           fi
-      
-  
-        
-           
-                  
-    
-
-      
