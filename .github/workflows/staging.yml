@@ -267,7 +267,7 @@ jobs:
           --namespace=kafka \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          >  ../secrets/kafka-user-sealed-secret.yaml
+          >  ../kafka-cluster/secrets/kafka-user-sealed-secret.yaml
 
           KAFKA_CONSUMER_ENV=kafka-consumer.env
           cat <<EOFCON> $KAFKA_CONSUMER_ENV
