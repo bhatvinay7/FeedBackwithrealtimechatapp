@@ -203,7 +203,7 @@ jobs:
           cat <<'EOF'> scripts/create-secrets.sh
           (
           set -e
-
+          root = "Helm/chart.staging/services" 
           kubeseal --fetch-cert \
           --controller-name sealed-secrets \
           --controller-namespace sealed-secrets \
@@ -323,7 +323,7 @@ jobs:
           username: ${{ secrets.KAFKA_USERNAME}}
           password: ${{ secrets.KAFKA_PASSWORD}}
           email: ${{ secrets.USER_EMAIL}}
-          root : "Helm/chart.staging/services"
+          
 
         run: |
           source scripts/create-secrets.sh
