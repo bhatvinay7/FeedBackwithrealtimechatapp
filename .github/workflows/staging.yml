@@ -204,7 +204,7 @@ jobs:
         run : |
           mkdir -p scripts
           touch scripts/create-secrets.sh
-          cat << EOF > scripts/create-secrets.sh
+          cat << 'EOF' > scripts/create-secrets.sh
           set -e
 
           cd ~/gitops/Helm/chart.staging/services
