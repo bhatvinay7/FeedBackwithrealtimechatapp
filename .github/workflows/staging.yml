@@ -202,9 +202,9 @@ jobs:
           touch scripts/create-secrets.sh
           cat <<'EOF'> scripts/create-secrets.sh
           set -e
+          (
 
           cd "$HOME/gitops/Helm/chart.staging/services"
-
           kubeseal --fetch-cert \
           --controller-name sealed-secrets \
           --controller-namespace sealed-secrets \
@@ -223,20 +223,20 @@ jobs:
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
           > secrets/docker-sealed-secret.yaml
 
-          # FRONTEND_ENV=frontend.env
-          # cat <<EOF > $FRONTEND_ENV
-          # NEXT_PUBLIC_BACKEND_API_URL=$NEXT_PUBLIC_BACKEND_API_URL
-          # secret_key=$SECRET_KEY
-          # NEXT_PUBLIC_FRONTEND_API_URL=$NEXT_PUBLIC_FRONTEND_API_URL
-          # NEXT_PUBLIC_WS_SERVER=$NEXT_PUBLIC_WS_SERVER
-          # EOF
+          FRONTEND_ENV=frontend.env
+          cat <<EOF > $FRONTEND_ENV
+          NEXT_PUBLIC_BACKEND_API_URL=$NEXT_PUBLIC_BACKEND_API_URL
+          secret_key=$SECRET_KEY
+          NEXT_PUBLIC_FRONTEND_API_URL=$NEXT_PUBLIC_FRONTEND_API_URL
+          NEXT_PUBLIC_WS_SERVER=$NEXT_PUBLIC_WS_SERVER
+          EOF
 
-          # kubectl create secret generic frontend-sealed-secret \
-          # --from-env-file=$FRONTEND_ENV \
-          # --namespace=feedback-services \
-          # --dry-run=client -o yaml \
-          # | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          # > secrets/frontend-sealed-secret.yaml
+          kubectl create secret generic frontend-sealed-secret \
+          --from-env-file=$FRONTEND_ENV \
+          --namespace=feedback-services \
+          --dry-run=client -o yaml \
+          | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
+          > secrets/frontend-sealed-secret.yaml
 
           BACKEND_ENV=backend.env
           cat <<EOF > $BACKEND_ENV
@@ -303,7 +303,7 @@ jobs:
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
           > secrets/ws-sealed-secret.yaml
-
+          )
           EOF
           chmod +x scripts/create-secrets.sh
 
