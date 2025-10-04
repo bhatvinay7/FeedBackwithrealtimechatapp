@@ -209,6 +209,7 @@ jobs:
 
           cd ~/gitops/Helm/chart.staging/services
 
+          mkdir -p secrets 
           ls -R -la 
 
           kubeseal --fetch-cert \
