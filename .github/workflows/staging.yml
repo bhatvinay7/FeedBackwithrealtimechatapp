@@ -301,7 +301,7 @@ jobs:
           --namespace=feedback-services \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          >  "$root/secrets/ws-sealed-secret.yaml"
+          >  secrets/ws-sealed-secret.yaml
           EOF
           chmod +x scripts/create-secrets.sh
 
