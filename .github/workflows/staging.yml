@@ -203,7 +203,7 @@ jobs:
           cat <<'EOF'> scripts/create-secrets.sh
           set -e
 
-          cd ~/gitops/Helm/chart.staging/services
+          cd "$HOME/gitops/Helm/chart.staging/services"
 
           kubeseal --fetch-cert \
           --controller-name sealed-secrets \
