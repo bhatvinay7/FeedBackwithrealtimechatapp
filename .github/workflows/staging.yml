@@ -326,7 +326,7 @@ jobs:
           email: ${{ secrets.USER_EMAIL}}
 
         run: |
-          bash scripts/create-secrets.sh
+          source scripts/create-secrets.sh
           cd ~/gitops/Helm/chart.staging/services
           rm -rf pub-sealed-secrets.pem
 
