@@ -223,7 +223,7 @@ jobs:
           > secrets/docker-sealed-secret.yaml
 
           FRONTEND_ENV=frontend.env
-          cat <<'EOFON'> $FRONTEND_ENV
+          cat <<EOFON> $FRONTEND_ENV
           NEXT_PUBLIC_BACKEND_API_URL=$NEXT_PUBLIC_BACKEND_API_URL
           secret_key=$SECRET_KEY
           NEXT_PUBLIC_FRONTEND_API_URL=$NEXT_PUBLIC_FRONTEND_API_URL
@@ -238,7 +238,7 @@ jobs:
           > secrets/frontend-sealed-secret.yaml
 
           BACKEND_ENV=backend.env
-          cat <<'EOFBACK'> $BACKEND_ENV
+          cat <<EOFBACK> $BACKEND_ENV
           GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
           GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET
           NEXT_PUBLIC_FRONTEND_API_URL=$NEXT_PUBLIC_FRONTEND_API_URL
@@ -257,10 +257,10 @@ jobs:
           >  secrets/backend-sealed-secret.yaml
 
           KAFKA_ENV=kafka.env
-          cat <<'EOFKAF'> $KAFKA_ENV
+          cat <<EOFKAF> $KAFKA_ENV
           username=$KAFKA_USERNAME
           password=$KAFKA_PASSWORD
-          EOFEOFKAF
+          EOFKAF
 
           kubectl create secret generic kafka-user-sealed-secret \
           --from-env-file=$KAFKA_ENV \
@@ -270,7 +270,7 @@ jobs:
           >  ../secrets/kafka-user-sealed-secret.yaml
 
           KAFKA_CONSUMER_ENV=kafka-consumer.env
-          cat <<'EOFCON'> $KAFKA_CONSUMER_ENV
+          cat <<EOFCON> $KAFKA_CONSUMER_ENV
           DATABASE_URL=$DATABASE_URL
           Redis_URL=$REDIS_URL
           redis_password=$REDIS_PASSWORD
@@ -287,7 +287,7 @@ jobs:
           >  secrets/kafka-consumer-sealed-secret.yaml
 
           WS_ENV=ws.env
-          cat <<'EOFWS' > $WS_ENV
+          cat <<EOFWS > $WS_ENV
           DATABASE_URL=$DATABASE_URL
           Redis_URL=$REDIS_URL
           redis_password=$REDIS_PASSWORD
