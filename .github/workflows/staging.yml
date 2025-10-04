@@ -306,9 +306,26 @@ jobs:
           chmod +x scripts/create-secrets.sh
 
       - name: Create and Seal Secrets
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          NEXT_PUBLIC_BACKEND_API_URL: ${{ secrets.NEXT_PUBLIC_BACKEND_API_URL }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          NEXT_PUBLIC_FRONTEND_API_URL: ${{ secrets.NEXT_PUBLIC_FRONTEND_API_URL }}
+          NEXT_PUBLIC_WS_SERVER: ${{ secrets.NEXT_PUBLIC_WS_SERVER }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          REDIS_URL: ${{ secrets.REDIS_URL }}
+          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+          REDIS_PORT: ${{ secrets.REDIS_PORT }}
+          username: ${{ secrets.KAFKA_USERNAME}}
+          password: ${{ secrets.KAFKA_PASSWORD}}
+          email: ${{ secrets.USER_EMAIL}}
+
         run: |
           source scripts/create-secrets.sh
-          rm -f pub-sealed-secrets.pem 
+          rm -f pub-sealed-secrets.pem
 
 
       - name: Commit and Push Changes
