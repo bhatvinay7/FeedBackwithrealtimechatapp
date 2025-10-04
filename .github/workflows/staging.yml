@@ -197,13 +197,16 @@ jobs:
           fi
 
       - name: create scripts/create-secrets.sh
+        
         run: |
           mkdir -p scripts
+          ls -R
           touch scripts/create-secrets.sh
           cat <<'EOF'> scripts/create-secrets.sh
-          
           set -e
-          root ="Helm/chart.staging/services" 
+          
+          cd "$HOME/Helm/chart.staging/services" 
+          ls -R
           kubeseal --fetch-cert \
           --controller-name sealed-secrets \
           --controller-namespace sealed-secrets \
@@ -220,7 +223,7 @@ jobs:
           --namespace=feedback-services \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          > "$root/secrets/docker-sealed-secret.yaml"
+          > secrets/docker-sealed-secret.yaml
 
           FRONTEND_ENV=frontend.env
           cat <<EOF > $FRONTEND_ENV
@@ -235,7 +238,7 @@ jobs:
           --namespace=feedback-services \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          > "$root/secrets/frontend-sealed-secret.yaml"
+          > secrets/frontend-sealed-secret.yaml
 
           BACKEND_ENV=backend.env
           cat <<EOF > $BACKEND_ENV
@@ -254,7 +257,7 @@ jobs:
           --namespace=feedback-services \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          >  "$root/secrets/backend-sealed-secret.yaml"
+          >  secrets/backend-sealed-secret.yaml
 
           KAFKA_ENV=kafka.env
           cat <<EOF > $KAFKA_ENV
@@ -267,7 +270,7 @@ jobs:
           --namespace=kafka \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          >  "$root/kafka-cluster/secrets/kafka-user-sealed-secret.yaml"
+          >  ../secrets/kafka-user-sealed-secret.yaml
 
           KAFKA_CONSUMER_ENV=kafka-consumer.env
           cat <<EOF > $KAFKA_CONSUMER_ENV
@@ -284,7 +287,7 @@ jobs:
           --namespace=kafka \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          >  "$root/secrets/kafka-consumer-sealed-secret.yaml"
+          >  secrets/kafka-consumer-sealed-secret.yaml
 
           WS_ENV=ws.env
           cat <<EOF > $WS_ENV
@@ -306,22 +309,7 @@ jobs:
           chmod +x scripts/create-secrets.sh
 
       - name: Create and Seal Secrets
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-          NEXT_PUBLIC_BACKEND_API_URL: ${{ secrets.NEXT_PUBLIC_BACKEND_API_URL }}
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
-          NEXT_PUBLIC_FRONTEND_API_URL: ${{ secrets.NEXT_PUBLIC_FRONTEND_API_URL }}
-          NEXT_PUBLIC_WS_SERVER: ${{ secrets.NEXT_PUBLIC_WS_SERVER }}
-          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          REDIS_URL: ${{ secrets.REDIS_URL }}
-          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
-          REDIS_PORT: ${{ secrets.REDIS_PORT }}
-          username: ${{ secrets.KAFKA_USERNAME}}
-          password: ${{ secrets.KAFKA_PASSWORD}}
-          email: ${{ secrets.USER_EMAIL}}
+        
           
 
         run: |
