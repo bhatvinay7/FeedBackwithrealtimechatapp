@@ -204,6 +204,8 @@ jobs:
           set -e
 
           cd "$HOME/gitops/Helm/chart.staging/services"
+          mkdir -p secrets
+          mkdir -p ../kafka-cluster/secrets
 
           kubeseal --fetch-cert \
           --controller-name sealed-secrets \
