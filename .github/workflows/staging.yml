@@ -204,7 +204,6 @@ jobs:
           (
           set -e
 
-          cd "$HOME/gitops/Helm/chart.staging/services"
           kubeseal --fetch-cert \
           --controller-name sealed-secrets \
           --controller-namespace sealed-secrets \
@@ -221,7 +220,7 @@ jobs:
           --namespace=feedback-services \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          > secrets/docker-sealed-secret.yaml
+          > $root/secrets/docker-sealed-secret.yaml
 
           FRONTEND_ENV=frontend.env
           cat <<EOF > $FRONTEND_ENV
@@ -236,7 +235,7 @@ jobs:
           --namespace=feedback-services \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          > secrets/frontend-sealed-secret.yaml
+          > $root/secrets/frontend-sealed-secret.yaml
 
           BACKEND_ENV=backend.env
           cat <<EOF > $BACKEND_ENV
@@ -255,7 +254,7 @@ jobs:
           --namespace=feedback-services \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          > secrets/backend-sealed-secret.yaml
+          >  $root/secrets/backend-sealed-secret.yaml
 
           KAFKA_ENV=kafka.env
           cat <<EOF > $KAFKA_ENV
@@ -268,7 +267,7 @@ jobs:
           --namespace=kafka \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          > ../kafka-cluster/secrets/kafka-user-sealed-secret.yaml
+          >  $root/kafka-cluster/secrets/kafka-user-sealed-secret.yaml
 
           KAFKA_CONSUMER_ENV=kafka-consumer.env
           cat <<EOF > $KAFKA_CONSUMER_ENV
@@ -285,7 +284,7 @@ jobs:
           --namespace=kafka \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          > secrets/kafka-consumer-sealed-secret.yaml
+          >  $root/secrets/kafka-consumer-sealed-secret.yaml
 
           WS_ENV=ws.env
           cat <<EOF > $WS_ENV
@@ -302,7 +301,7 @@ jobs:
           --namespace=feedback-services \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
-          > secrets/ws-sealed-secret.yaml
+          >  $root/secrets/ws-sealed-secret.yaml
           )
           EOF
           chmod +x scripts/create-secrets.sh
@@ -324,11 +323,11 @@ jobs:
           username: ${{ secrets.KAFKA_USERNAME}}
           password: ${{ secrets.KAFKA_PASSWORD}}
           email: ${{ secrets.USER_EMAIL}}
+          root : "Helm/chart.staging/services"
 
         run: |
           source scripts/create-secrets.sh
-          cd ~/gitops/Helm/chart.staging/services
-          rm -rf pub-sealed-secrets.pem
+         
 
       - name: Commit and Push Changes
         run: |
