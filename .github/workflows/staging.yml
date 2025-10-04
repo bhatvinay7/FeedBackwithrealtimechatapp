@@ -204,9 +204,12 @@ jobs:
         run : |
           mkdir -p scripts
           touch scripts/create-secrets.sh
-          cat << 'EOF' > scripts/create-secrets.sh
+          cat << EOF > scripts/create-secrets.sh
           set -e
+
           cd ~/gitops/Helm/chart.staging/services
+
+          ls -R -la 
 
           kubeseal --fetch-cert \
           --controller-name sealed-secrets \
@@ -227,7 +230,7 @@ jobs:
           > secrets/docker-sealed-secret.yaml
 
           FRONTEND_ENV=frontend.env
-          cat <<'EOF' > $FRONTEND_ENV
+          cat <<EOF > $FRONTEND_ENV
           NEXT_PUBLIC_BACKEND_API_URL=$NEXT_PUBLIC_BACKEND_API_URL
           secret_key=$SECRET_KEY
           NEXT_PUBLIC_FRONTEND_API_URL=$NEXT_PUBLIC_FRONTEND_API_URL
@@ -241,9 +244,8 @@ jobs:
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
           > secrets/frontend-sealed-secret.yaml
 
-
           BACKEND_ENV=backend.env
-          cat <<'EOF' > $BACKEND_ENV
+          cat <<EOF > $BACKEND_ENV
           GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
           GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET
           NEXT_PUBLIC_FRONTEND_API_URL=$NEXT_PUBLIC_FRONTEND_API_URL
@@ -261,9 +263,8 @@ jobs:
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
           > secrets/backend-sealed-secret.yaml
 
-
           KAFKA_ENV=kafka.env
-          cat <<'EOF' > $KAFKA_ENV
+          cat <<EOF > $KAFKA_ENV
           username=$KAFKA_USERNAME
           password=$KAFKA_PASSWORD
           EOF
@@ -276,7 +277,7 @@ jobs:
           > ../kafka-cluster/secrets/kafka-user-sealed-secret.yaml
 
           KAFKA_CONSUMER_ENV=kafka-consumer.env
-          cat <<'EOF' > $KAFKA_CONSUMER_ENV
+          cat <<EOF > $KAFKA_CONSUMER_ENV
           DATABASE_URL=$DATABASE_URL
           Redis_URL=$REDIS_URL
           redis_password=$REDIS_PASSWORD
@@ -293,7 +294,7 @@ jobs:
           > secrets/kafka-consumer-sealed-secret.yaml
 
           WS_ENV=ws.env
-          cat <<'EOF' > $WS_ENV
+          cat <<EOF > $WS_ENV
           DATABASE_URL=$DATABASE_URL
           Redis_URL=$REDIS_URL
           redis_password=$REDIS_PASSWORD
