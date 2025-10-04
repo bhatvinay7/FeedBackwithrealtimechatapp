@@ -327,7 +327,7 @@ jobs:
           source scripts/create-secrets.sh
           cd ~/gitops/Helm/chart.staging/services
           rm -f pub-sealed-secrets.pem
-          rm -f $FRONTEND_ENV $BACKEND_ENV $WS_ENV $KAFKA_CONSUMER_ENV $KAFKA_ENV
+          rm -f backend.env frontend.env ws.env kafka.env  kafka-consumer.env
 
 
       - name: Commit and Push Changes
