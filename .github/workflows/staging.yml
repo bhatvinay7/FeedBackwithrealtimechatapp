@@ -202,7 +202,7 @@ jobs:
           touch scripts/create-secrets.sh
           cat <<'EOF'> scripts/create-secrets.sh
           set -e
-          cd ~/Helm/chart.staging/services
+          cd ~/gitops/Helm/chart.staging/services
 
           kubeseal --fetch-cert \
           --controller-name sealed-secrets \
@@ -308,6 +308,7 @@ jobs:
       - name: Create and Seal Secrets
         run: |
           source scripts/create-secrets.sh
+          rm -f pub-sealed-secrets.pem 
 
 
       - name: Commit and Push Changes
