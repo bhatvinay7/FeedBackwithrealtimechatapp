@@ -198,12 +198,12 @@ jobs:
 
       - name: create scripts/create-secrets.sh
         run: |
+          cd ~/gitops/Helm/chart.staging/services
           mkdir -p scripts
           touch scripts/create-secrets.sh
           cat <<'EOF'> scripts/create-secrets.sh
           set -e
 
-          cd "$HOME/gitops/Helm/chart.staging/services"
           mkdir -p secrets
           mkdir -p ../kafka-cluster/secrets
 
@@ -328,8 +328,8 @@ jobs:
           email: ${{ secrets.USER_EMAIL}}
 
         run: |
-          . scripts/create-secrets.sh
           cd ~/gitops/Helm/chart.staging/services
+          . scripts/create-secrets.sh
           rm -rf pub-sealed-secrets.pem
 
       - name: Commit and Push Changes
