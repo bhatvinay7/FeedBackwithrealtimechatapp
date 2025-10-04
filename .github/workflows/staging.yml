@@ -263,7 +263,7 @@ jobs:
           EOFKAF
 
           kubectl create secret generic kafka-user-sealed-secret \
-          --from-env-file=.env=kafka.env \
+          --from-literal=combined_env="$(cat kafka.env)" \
           --namespace=kafka \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
