@@ -197,16 +197,13 @@ jobs:
           fi
 
       - name: create scripts/create-secrets.sh
-        
         run: |
           mkdir -p scripts
-          ls -R
           touch scripts/create-secrets.sh
           cat <<'EOF'> scripts/create-secrets.sh
           set -e
-          
-          cd "$HOME/Helm/chart.staging/services" 
-          ls -R
+          cd "$HOME/Helm/chart.staging/services"
+
           kubeseal --fetch-cert \
           --controller-name sealed-secrets \
           --controller-namespace sealed-secrets \
@@ -309,12 +306,9 @@ jobs:
           chmod +x scripts/create-secrets.sh
 
       - name: Create and Seal Secrets
-        
-          
-
         run: |
           source scripts/create-secrets.sh
-         
+
 
       - name: Commit and Push Changes
         run: |
