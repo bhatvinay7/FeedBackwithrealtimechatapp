@@ -223,7 +223,7 @@ jobs:
           > secrets/docker-sealed-secret.yaml
 
           FRONTEND_ENV=frontend.env
-          cat <<EOFON> $FRONTEND_ENV
+          cat <<'EOFON' > $FRONTEND_ENV
           NEXT_PUBLIC_BACKEND_API_URL=$NEXT_PUBLIC_BACKEND_API_URL
           secret_key=$SECRET_KEY
           NEXT_PUBLIC_FRONTEND_API_URL=$NEXT_PUBLIC_FRONTEND_API_URL
@@ -231,14 +231,14 @@ jobs:
           EOFON
 
           kubectl create secret generic frontend-sealed-secret \
-          --from-env-file=.env=frontend.env \
+          --from-env-file=.env=$FRONTEND_ENV \
           --namespace=feedback-services \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
           > secrets/frontend-sealed-secret.yaml
 
           BACKEND_ENV=backend.env
-          cat <<EOFBACK> $BACKEND_ENV
+          cat <<'EOFBACK' > $BACKEND_ENV
           GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
           GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET
           NEXT_PUBLIC_FRONTEND_API_URL=$NEXT_PUBLIC_FRONTEND_API_URL
@@ -250,20 +250,20 @@ jobs:
           EOFBACK
 
           kubectl create secret generic backend-sealed-secret \
-          --from-env-file=.env=backend.env \
+          --from-env-file=.env=$BACKEND_ENV \
           --namespace=feedback-services \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
           >  secrets/backend-sealed-secret.yaml
 
           KAFKA_ENV=kafka.env
-          cat <<EOFKAF> $KAFKA_ENV
+          cat <<'EOFKAF' > $KAFKA_ENV
           username=$KAFKA_USERNAME
           password=$KAFKA_PASSWORD
           EOFKAF
 
           kubectl create secret generic kafka-user-sealed-secret \
-          --from-env-file=.env=kafka.env \
+          --from-env-file=.env=$KAFKA_ENV \
           --namespace=kafka \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
@@ -287,7 +287,7 @@ jobs:
           >  secrets/kafka-consumer-sealed-secret.yaml
 
           WS_ENV=ws.env
-          cat <<EOFWS > $WS_ENV
+          cat <<'EOFWS' > $WS_ENV
           DATABASE_URL=$DATABASE_URL
           Redis_URL=$REDIS_URL
           redis_password=$REDIS_PASSWORD
@@ -297,7 +297,7 @@ jobs:
           EOFWS
 
           kubectl create secret generic ws-sealed-secret \
-          --from-env-file=.env=ws.env\
+          --from-env-file=.env=$WS_ENV \
           --namespace=feedback-services \
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
