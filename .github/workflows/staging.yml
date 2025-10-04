@@ -209,9 +209,6 @@ jobs:
 
           cd ~/gitops/Helm/chart.staging/services
 
-          mkdir -p secrets 
-          ls -R -la 
-
           kubeseal --fetch-cert \
           --controller-name sealed-secrets \
           --controller-namespace sealed-secrets \
@@ -310,9 +307,10 @@ jobs:
           --dry-run=client -o yaml \
           | kubeseal --cert=pub-sealed-secrets.pem --format=yaml \
           > secrets/ws-sealed-secret.yaml
-          EOF
 
           chmod +x scripts/create-secrets.sh
+          EOF
+
                 
       - name: Create and Seal Secrets
         env:
