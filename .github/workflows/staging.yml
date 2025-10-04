@@ -340,6 +340,7 @@ jobs:
           git checkout $GITOPS_BRANCH
           git config user.name "ci-bot"
           git config user.email "ci-bot@example.com"
+          git add -u
           git add --renormalize .
           git add .
           if git diff-index --quiet HEAD --; then
