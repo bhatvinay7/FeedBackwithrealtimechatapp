@@ -52,7 +52,7 @@ config:
   layout: dagre
   curve: basis
 ---
-<img width="786" height="227" alt="image" src="https://github.com/user-attachments/assets/407c4e2e-1600-488d-9656-7e4fb566ed29" />
+<img width="1892" height="426" alt="image" src="https://github.com/user-attachments/assets/debf3fac-9742-4524-b267-91c09f97d4a8" />
 
 ---
 
