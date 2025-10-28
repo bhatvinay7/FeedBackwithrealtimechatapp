@@ -45,13 +45,6 @@ Built with **FastAPI** (backend), **Next.js (SSR)** (frontend), **Kafka** for ev
 
 ## 🏗️ System Architecture
 
----
-config:
-  theme: neo-dark
-  look: classic
-  layout: dagre
-  curve: basis
----
 <img width="1892" height="426" alt="image" src="https://github.com/user-attachments/assets/debf3fac-9742-4524-b267-91c09f97d4a8" />
 
 ---
