@@ -44,29 +44,4 @@ Managers can create **projects/groups**, invite employees via **expirable links*
 ---
 
 ## 🏗️ System Architecture
-
-```mermaid
-graph TD
-    subgraph Frontend ["Next.js (SSR)"]
-    A[Client Browser] -->|WebSocket| B[WS Server]
-    end
-
-    subgraph Backend ["FastAPI + Kafka + WebSocket"]
-    B --> C[WebSocket Server]
-    C --> D[(Kafka message-handler Topic)]
-    D --> E[Message Worker]
-    E --> F[(Database)]
-    E --> G[NATS / PubSub Bus]
-    end
-
-    subgraph Storage
-    F --> H[(PostgreSQL / MongoDB)]
-    end
-
-    subgraph RealtimeFlow ["Realtime Data Flow"]
-    A -->|HTTP| I[FastAPI REST API]
-    I --> F
-    B --> D
-    G --> B
-    end
-```
+<img width="522" height="695" alt="image" src="https://github.com/user-attachments/assets/7ea77095-b066-419d-8619-0cb1747329b8" />
