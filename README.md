@@ -45,7 +45,38 @@ Built with **FastAPI** (backend), **Next.js (SSR)** (frontend), **Kafka** for ev
 
 ## 🏗️ System Architecture
 
-![Architecture diagram](https://github.com/user-attachments/assets/7ea77095-b066-419d-8619-0cb1747329b8)
+---
+config:
+  theme: neo-dark
+  look: classic
+  layout: dagre
+  curve: basis
+---
+flowchart LR
+ subgraph Frontend["🖥️ Frontend — Next.js (SSR)"]
+        A["Client Browser"]
+        B["WebSocket Server"]
+        I["FastAPI REST API"]
+  end
+ subgraph Storage["💾 Storage"]
+        H["PostgreSQL / MongoDB"]
+  end
+    A L_A_B_0@-- WebSocket --> B
+    A L_A_I_0@-- HTTP --> I
+    B L_B_D_0@--> D(["Kafka\nTopic:"]) & G["REDIS / PubSub Bus"]
+    D L_D_E_0@--> E["Worker Service"]
+    E L_E_F_0@--> F["Database"] & n1["Untitled Node"]
+    F L_F_H_0@--> H
+    G L_G_B_0@--> B
+    L_A_B_0@{ animation: slow } 
+    L_A_I_0@{ animation: slow } 
+    L_B_D_0@{ animation: slow } 
+    L_B_G_0@{ animation: slow } 
+    L_D_E_0@{ animation: slow } 
+    L_E_F_0@{ animation: slow } 
+    L_F_H_0@{ animation: slow } 
+    L_G_B_0@{ animation: slow }
+
 
 ---
 
